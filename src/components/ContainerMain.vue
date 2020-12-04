@@ -38,7 +38,7 @@ export default {
         ContainerAsideNav,
         ContainerChessboard,
     },
-    data: function () {
+    data() {
         return {
             heightHeader: "40px",
             widthAside: "64px",
