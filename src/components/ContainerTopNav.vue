@@ -34,12 +34,18 @@
             <label>旋转地图: </label>
             <el-switch v-model="isRotated" @change="onClickRotateMap" />
         </el-col>
-        <el-col :span="4" class="resize-element">
-            <div class="left">选中坐标: {{ selected }}</div>
-            <div style="border: 2px solid transparent"></div>
-            <div class="left">选中放置建筑: {{ holding }}</div>
+        <el-col :span="4">
+            <label class="left"
+                >选中坐标:
+                <strong class="highlight">{{ selected }}</strong>
+            </label>
+            <div class="splitter"></div>
+            <label class="left"
+                >选中放置建筑:
+                <strong class="highlight">{{ holding }}</strong>
+            </label>
         </el-col>
-        <el-col :span="3" class="resize-element">
+        <el-col :span="3">
             <div class="right">
                 模拟帝国地图编辑器
                 <span class="highlight">{{ version }}</span>
@@ -123,11 +129,10 @@ export default {
         const resizeObserver = new ResizeObserver((entries) => {
             let height = 0;
             for (let entry of entries) {
-                if (entry.contentRect.height > height)
-                    height = entry.contentRect.height;
+                height = entry.contentRect.height;
             }
+            height += 20;
             if (height < 40) height = 40;
-            else height += 20;
             this.$emit("update:height", `${height}px`);
         });
         resizeObserver.observe(document.querySelector(".resize-element"));
@@ -162,7 +167,9 @@ select {
 }
 
 .left {
-    font-size: 10px;
+    font-size: 14px;
+    color: $color-secondary-text;
+    white-space: nowrap;
 }
 
 .highlight {

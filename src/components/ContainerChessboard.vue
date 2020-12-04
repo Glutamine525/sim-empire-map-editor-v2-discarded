@@ -1,20 +1,28 @@
 <template>
     <div>
-        <div v-for="li in 116" :key="li" class="line">
-            <div
-                v-for="co in 116"
-                :key="co"
-                :id="li + '-' + co"
-                class="cell"
-                :class="assignClass(li, co)"
-            ></div>
-            <br />
+        <div class="cell-container">
+            <div v-for="li in 116" :key="li" class="line">
+                <div
+                    v-for="co in 116"
+                    :key="co"
+                    :id="li + '-' + co"
+                    class="cell"
+                    :class="assignClass(li, co)"
+                ></div>
+                <br />
+            </div>
         </div>
+        <ContainerBiulding class="building-container"></ContainerBiulding>
     </div>
 </template>
 
 <script>
+import { ContainerBiulding } from "./ContainerBuilding.vue";
+
 export default {
+    components: {
+        ContainerBiulding,
+    },
     data() {
         return {
             length: 116,
@@ -60,6 +68,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.building-container {
+    width: 3480px;
+    height: 3480px;
+    position: absolute;
+    top: 32px;
+    left: 32px;
+}
+
 .line {
     line-height: 0px;
     white-space: nowrap;
