@@ -1,8 +1,9 @@
 <template>
     <el-container>
         <el-header :height="heightHeader">
-            <ContainerTopNav
+            <container-top-nav
                 @update:height="heightHeader = $event"
+                @update:no-wood="onClickNoWood($event)"
                 :style="{ '--content-height': heightHeader }"
             />
         </el-header>
@@ -11,7 +12,7 @@
                 :width="widthAside"
                 :style="{ 'margin-top': heightHeader }"
             >
-                <ContainerAsideNav />
+                <container-aside-nav />
             </el-aside>
             <el-main
                 :style="{
@@ -19,7 +20,7 @@
                     left: widthAside,
                 }"
             >
-                <ContainerChessboard />
+                <container-chessboard ref="chessboard" />
             </el-main>
         </el-container>
     </el-container>
@@ -31,7 +32,7 @@ import ContainerAsideNav from "./ContainerAsideNav.vue";
 import ContainerChessboard from "./ContainerChessboard.vue";
 
 export default {
-    name: "MainContainer",
+    name: "container-maian",
     props: {},
     components: {
         ContainerTopNav,
@@ -45,7 +46,33 @@ export default {
         };
     },
     watch: {},
-    methods: {},
+    methods: {
+        onClickNoWood(isNoWood) {
+            console.log(isNoWood);
+            console.log(this.$refs.chessboard.$refs.building);
+            let containerBuilding = this.$refs.chessboard.$refs.building;
+            if (isNoWood) {
+                containerBuilding.tree = [];
+            } else {
+                coord_barrier_tree[2].map(function (v) {
+                    let unit = v.split("-");
+                    containerBuilding.createBuilding("tree", true, {
+                        line: +unit[0],
+                        column: +unit[1],
+                        width: 1,
+                        height: 1,
+                        range: 0,
+                        isBarrier: true,
+                        text: "",
+                        color: "red",
+                        background: color_tree,
+                        borderWidth: 1,
+                        borderColor: "var(--color-border-base)",
+                    });
+                });
+            }
+        },
+    },
 };
 </script>
 
@@ -77,7 +104,7 @@ export default {
 }
 
 .el-main {
-    background-color: $color-background-lighter;
+    background-color: $color-background-darker;
     color: #333;
     margin: 0;
     padding: 32px;

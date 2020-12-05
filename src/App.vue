@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <ContainerMain></ContainerMain>
+        <container-main></container-main>
     </div>
 </template>
 
@@ -10,7 +10,7 @@ import ContainerMain from "./components/ContainerMain.vue";
 export default {
     name: "app",
     components: {
-        ContainerMain,
+        "container-main": ContainerMain,
     },
 };
 </script>

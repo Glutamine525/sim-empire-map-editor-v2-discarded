@@ -64,6 +64,7 @@ import { LightMode } from "./../light-mode.js";
 import { DarkMode } from "./../dark-mode.js";
 
 export default {
+    name: "container-top-nav",
     data() {
         return {
             version: "V2.0",
@@ -93,11 +94,7 @@ export default {
     },
     methods: {
         onClickNoWood(isNoWood) {
-            if (isNoWood) {
-                console.log({ isNoWood });
-            } else {
-                console.log({ isNoWood });
-            }
+            this.$emit("update:no-wood", isNoWood);
         },
         onClickDarkMode(isDark) {
             if (isDark) {
@@ -136,6 +133,7 @@ export default {
             this.$emit("update:height", `${height}px`);
         });
         resizeObserver.observe(document.querySelector(".resize-element"));
+        this.onClickDarkMode(false);
     },
 };
 </script>

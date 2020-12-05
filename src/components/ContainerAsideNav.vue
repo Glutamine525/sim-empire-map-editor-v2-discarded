@@ -41,6 +41,7 @@
 
 <script>
 export default {
+    name: "container-aside-nav",
     data() {
         return {
             isCollapse: true,
