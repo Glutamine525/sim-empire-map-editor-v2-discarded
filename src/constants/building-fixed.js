@@ -1,4 +1,4 @@
-export const FixedBuilding = {
+export const BuildingFixed = {
     water: [
         [
             "99-43",

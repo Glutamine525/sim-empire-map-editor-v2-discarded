@@ -1,27 +1,29 @@
 <template>
-    <div
-        class="building-range-container"
-        v-show="show"
-        :style="{
-            top: getTop,
-            left: getLeft,
-            width: getWidth,
-            height: getHeight,
-        }"
-    >
+    <transition name="el-fade-in-linear">
         <div
-            v-for="li in range * 2 + height"
-            :key="'range-' + li"
-            class="range-row"
+            class="building-range-container"
+            v-show="show"
+            :style="{
+                top: getTop,
+                left: getLeft,
+                width: getWidth,
+                height: getHeight,
+            }"
         >
             <div
-                v-for="co in range * 2 + width"
-                :key="'range-' + li + '-' + co"
-                class="range-cell"
-                :class="{ 'range-cell-hide': hideCell(li, co) }"
-            ></div>
+                v-for="li in range * 2 + height"
+                :key="'range-' + li"
+                class="range-row"
+            >
+                <div
+                    v-for="co in range * 2 + width"
+                    :key="'range-' + li + '-' + co"
+                    class="range-cell"
+                    :class="{ 'range-cell-hide': hideCell(li, co) }"
+                ></div>
+            </div>
         </div>
-    </div>
+    </transition>
 </template>
 
 <script>
@@ -56,13 +58,25 @@ export default {
         hideCell(li, co) {
             li -= this.range + 1;
             co -= this.range + 1;
-            if (li + co + this.range + this.diff < 0) return true;
-            if (li + co > this.range + this.diff + this.width + this.height - 2)
-                return true;
-            if (li < co - (this.range + this.diff + this.width - 1))
-                return true;
-            if (li > co + (this.range + this.diff + this.height - 1))
-                return true;
+            return !this.isInRange(
+                li,
+                co,
+                0,
+                0,
+                this.width,
+                this.height,
+                this.range
+            );
+        },
+        isInRange(li, co, originLi, originCo, width, height, range) {
+            let diff = range - 4;
+            li -= originLi;
+            co -= originCo;
+            if (li + co + range + diff < 0) return false;
+            if (li + co > range + diff + width + height - 2) return false;
+            if (li < co - (range + diff + width - 1)) return false;
+            if (li > co + (range + diff + height - 1)) return false;
+            return true;
         },
     },
 };
@@ -86,7 +100,7 @@ export default {
     width: 30px;
     height: 30px;
     display: inline-block;
-    background: #00ff003f;
+    background: #00ff007f;
 }
 
 .range-cell-hide {

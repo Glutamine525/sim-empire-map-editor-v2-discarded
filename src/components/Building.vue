@@ -2,7 +2,10 @@
     <div
         class="building"
         :id="getID"
-        :class="{ hoverable: !isFixed || text }"
+        :class="{
+            hoverable: !isFixed || text,
+            'protection-mask': showProtectionMask(),
+        }"
         :style="{
             top: getTop,
             left: getLeft,
@@ -14,11 +17,11 @@
             borderStyle: getBorderStyle,
             borderColor: borderColor,
         }"
-        @mouseenter="onMouseEnter"
+        @mousemove="onMouseMove"
         @mouseleave="onMouseLeave"
     >
         <div class="text">{{ text }}</div>
-        <span class="protection" v-if="showMarker()">{{ marker }}</span>
+        <span class="marker" v-if="showMarker()">{{ marker }}</span>
     </div>
 </template>
 
@@ -28,6 +31,7 @@ export default {
     data() {
         return {
             // marker: 1,
+            showEffect: true,
             protection: {
                 // 值: [1],
             },
@@ -95,6 +99,9 @@ export default {
         },
     },
     methods: {
+        setShowEffect(v) {
+            this.showEffect = v;
+        },
         showMarker() {
             if (this.text === "" && !this.isRoad) return false;
             if (this.marker === 0) return false;
@@ -102,7 +109,10 @@ export default {
             if (this.isMiracel) return false;
             return true;
         },
-        onMouseEnter() {
+        showProtectionMask() {
+            return this.isProtection && this.showEffect;
+        },
+        onMouseMove() {
             if (!this.range) return;
             this.$emit("update:enter-range", {
                 li: this.line,
@@ -147,11 +157,38 @@ export default {
     text-shadow: $color-white 0px 1px 10px;
 }
 
-.protection {
+.marker {
     font-size: 10px;
     position: absolute;
     left: 2px;
     zoom: 0.75;
     text-shadow: $color-white 0px 1px 5px;
+}
+
+@keyframes scale {
+    0% {
+        transform: scale(0);
+    }
+    50%,
+    75% {
+        transform: scale(1.5);
+    }
+    78%,
+    100% {
+        opacity: 0;
+    }
+}
+
+.protection-mask::after {
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 100%;
+    background-color: #ff7373;
+    opacity: 0.7;
+    z-index: 4;
+    border-radius: 50%;
+    animation: scale 2s infinite cubic-bezier(0, 0, 0.49, 1.02);
+    animation-delay: 300ms;
 }
 </style>

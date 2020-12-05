@@ -60,8 +60,8 @@
 </template>
 
 <script>
-import { LightMode } from "./../light-mode.js";
-import { DarkMode } from "./../dark-mode.js";
+import { LightMode } from "./../constants/light-mode.js";
+import { DarkMode } from "./../constants/dark-mode.js";
 
 export default {
     name: "container-top-nav",
@@ -130,7 +130,7 @@ export default {
             }
             height += 20;
             if (height < 40) height = 40;
-            this.$emit("update:height", `${height}px`);
+            this.$emit("update:top-height", `${height}px`);
         });
         resizeObserver.observe(document.querySelector(".resize-element"));
         this.onClickDarkMode(false);

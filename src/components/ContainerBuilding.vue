@@ -27,12 +27,12 @@
             @update:enter-range="onMouseEnter($event)"
             @update:leave-range="onMouseLeave($event)"
         ></building>
-        <container-building-range v-bind="buildingRange" />
+        <container-building-range ref="range" v-bind="buildingRange" />
     </div>
 </template>
 
 <script>
-import { FixedBuilding } from "./../fixed-building";
+import { BuildingFixed } from "./../constants/building-fixed";
 import Building from "./Building.vue";
 import ContainerBuildingRange from "./ContainerBuildingRange.vue";
 
@@ -85,7 +85,7 @@ export default {
         drawFixedBuilding(woodNum, type) {
             woodNum -= 3;
             let that = this;
-            FixedBuilding[type][woodNum].map(function (v) {
+            BuildingFixed[type][woodNum].map(function (v) {
                 let unit = v.split("-");
                 if (unit.length < 3) unit.push(1);
                 if (unit.length < 4) unit.push(unit[2]);
@@ -101,9 +101,9 @@ export default {
                     range: 0,
                     isFixed: true,
                     isRoad: type === "road",
-                    text: FixedBuilding[`text_${type}`],
+                    text: BuildingFixed[`text_${type}`],
                     color: "var(--color-black)",
-                    background: FixedBuilding[`color_${type}`],
+                    background: BuildingFixed[`color_${type}`],
                     borderWidth: 1,
                     borderColor: "var(--color-border-base)",
                 });
@@ -116,6 +116,17 @@ export default {
             this.buildingRange.width = event.w;
             this.buildingRange.height = event.h;
             this.buildingRange.range = event.r;
+            // console.log(
+            //     this.$refs.range.isInRange(
+            //         60,
+            //         53,
+            //         this.buildingRange.originLi,
+            //         this.buildingRange.originCo,
+            //         this.buildingRange.width,
+            //         this.buildingRange.height,
+            //         this.buildingRange.range
+            //     )
+            // );
         },
         onMouseLeave(event) {
             this.buildingRange.show = false;
@@ -140,9 +151,10 @@ export default {
             range: 4,
             text: "test",
             color: "black",
-            background: "black",
+            background: "red",
             borderWidth: 1,
             borderColor: "var(--color-border-base)",
+            isProtection: true,
         });
         this.createBuilding("building", true, {
             line: 60,
@@ -152,9 +164,10 @@ export default {
             range: 6,
             text: "test",
             color: "black",
-            background: "black",
+            background: "red",
             borderWidth: 1,
             borderColor: "var(--color-border-base)",
+            isProtection: true,
         });
         this.createBuilding("building", true, {
             line: 57,
@@ -164,9 +177,10 @@ export default {
             range: 0,
             text: "test",
             color: "black",
-            background: "black",
+            background: "red",
             borderWidth: 1,
             borderColor: "var(--color-border-base)",
+            isProtection: true,
         });
     },
 };

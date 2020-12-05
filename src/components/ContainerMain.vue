@@ -2,7 +2,7 @@
     <el-container>
         <el-header :height="heightHeader">
             <container-top-nav
-                @update:height="heightHeader = $event"
+                @update:top-height="heightHeader = $event"
                 @update:no-wood="onClickNoWood($event)"
                 :style="{ '--content-height': heightHeader }"
             />
@@ -12,7 +12,7 @@
                 :width="widthAside"
                 :style="{ 'margin-top': heightHeader }"
             >
-                <container-aside-nav />
+                <container-aside-nav ref="aside" />
             </el-aside>
             <el-main
                 :style="{
@@ -48,8 +48,6 @@ export default {
     watch: {},
     methods: {
         onClickNoWood(isNoWood) {
-            console.log(isNoWood);
-            console.log(this.$refs.chessboard.$refs.building);
             let containerBuilding = this.$refs.chessboard.$refs.building;
             if (isNoWood) {
                 containerBuilding.tree = [];
@@ -73,6 +71,7 @@ export default {
             }
         },
     },
+    mounted() {},
 };
 </script>
 
@@ -101,6 +100,8 @@ export default {
     height: 100%;
     border-right: 1px solid $color-border-base;
     box-shadow: 3px 3px 5px $color-border-base;
+    overflow: hidden;
+    padding-bottom: 45px;
 }
 
 .el-main {
