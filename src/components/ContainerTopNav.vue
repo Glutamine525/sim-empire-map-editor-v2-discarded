@@ -106,6 +106,7 @@ export default {
                     document.body.style.setProperty(`--${v}`, LightMode[v]);
                 });
             }
+            this.$emit("update:dark-mode", isDark);
         },
         onClickMiniMap(isMiniMap) {
             if (isMiniMap) {
@@ -149,7 +150,7 @@ export default {
     line-height: 1;
     font-size: 14px;
     color: $color-primary-text;
-    transition: color, background, 0.3s;
+    transition: color, background, border, box-shadow, 0.3s;
 }
 
 .splitter {

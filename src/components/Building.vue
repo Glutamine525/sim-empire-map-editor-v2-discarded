@@ -113,24 +113,26 @@ export default {
             return this.isProtection && this.showEffect;
         },
         onMouseMove() {
-            if (!this.range) return;
-            this.$emit("update:enter-range", {
-                li: this.line,
-                co: this.column,
-                w: this.width,
-                h: this.height,
-                r: this.range,
-            });
+            if (this.range) {
+                this.$emit("update:enter-range", {
+                    li: this.line,
+                    co: this.column,
+                    w: this.width,
+                    h: this.height,
+                    r: this.range,
+                });
+            }
         },
         onMouseLeave() {
-            if (!this.range) return;
-            this.$emit("update:leave-range", {
-                li: this.line,
-                co: this.column,
-                w: this.width,
-                h: this.height,
-                r: this.range,
-            });
+            if (this.range) {
+                this.$emit("update:leave-range", {
+                    li: this.line,
+                    co: this.column,
+                    w: this.width,
+                    h: this.height,
+                    r: this.range,
+                });
+            }
         },
     },
 };

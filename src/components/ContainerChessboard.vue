@@ -15,6 +15,7 @@
         <container-biulding
             ref="building"
             class="building-container"
+            @click="test($event)"
         ></container-biulding>
     </div>
 </template>
@@ -59,6 +60,9 @@ export default {
             if (li === co - this.halfLength) return "top-right";
             if (li === co + this.halfLength) return "bottom-left";
             return false;
+        },
+        test(event) {
+            console.log(event);
         },
     },
     mounted() {

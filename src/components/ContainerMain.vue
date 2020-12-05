@@ -4,6 +4,7 @@
             <container-top-nav
                 @update:top-height="heightHeader = $event"
                 @update:no-wood="onClickNoWood($event)"
+                @update:dark-mode="onClickDarkMode($event)"
                 :style="{ '--content-height': heightHeader }"
             />
         </el-header>
@@ -70,6 +71,9 @@ export default {
                 });
             }
         },
+        onClickDarkMode(isDark) {
+            this.$refs.aside.onClickDarkMode(isDark);
+        },
     },
     mounted() {},
 };
@@ -102,6 +106,7 @@ export default {
     box-shadow: 3px 3px 5px $color-border-base;
     overflow: hidden;
     padding-bottom: 45px;
+    transition: color, background, border, box-shadow, 0.3s;
 }
 
 .el-main {

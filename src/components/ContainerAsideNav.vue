@@ -1,98 +1,105 @@
 <template>
-    <div style="overflow-y: auto; height: 100%; width: 84px">
-        <div style="">
-            <el-menu :collapse="true">
-                <!-- <el-submenu index="1">
-                    <template slot="title">
-                        <i class="el-icon-location"></i>
-                        <span slot="title">导航一</span>
-                    </template>
-                    <el-menu-item-group>
-                        <span slot="title">分组一</span>
-                        <el-menu-item index="1-1">选项1</el-menu-item>
-                        <el-menu-item index="1-2">选项2</el-menu-item>
-                    </el-menu-item-group>
-                    <el-menu-item-group title="分组2">
-                        <el-menu-item index="1-3">选项3</el-menu-item>
-                    </el-menu-item-group>
-                    <el-submenu index="1-4">
-                        <span slot="title">选项4</span>
-                        <el-menu-item index="1-4-1">选项1</el-menu-item>
-                    </el-submenu>
-                </el-submenu>
-                <el-menu-item index="2">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">导航二</span>
-                </el-menu-item>
-                <el-menu-item index="3" disabled>
-                    <i class="el-icon-document"></i>
-                    <span slot="title">导航三</span>
-                </el-menu-item>
-                <el-menu-item index="4">
-                    <i class="el-icon-setting"></i>
-                    <span slot="title">导航四</span>
-                </el-menu-item> -->
-                <el-submenu index="1">
-                    <template slot="title">
-                        <i class="el-icon-location"></i>
-                        <span slot="title">导航一</span>
-                    </template>
-                    <el-menu-item-group>
-                        <span slot="title">分组一</span>
-                        <el-menu-item index="1-1">选项1</el-menu-item>
-                        <el-menu-item index="1-2">选项2</el-menu-item>
-                    </el-menu-item-group>
-                    <el-menu-item-group title="分组2">
-                        <el-menu-item index="1-3">选项3</el-menu-item>
-                    </el-menu-item-group>
-                    <el-submenu index="1-4">
-                        <span slot="title">选项4</span>
-                        <el-menu-item index="1-4-1">选项1</el-menu-item>
-                    </el-submenu>
-                </el-submenu>
-
-                <el-submenu
-                    v-for="(item, index) in buildingCatagory"
-                    :key="item"
-                    :index="index"
-                >
-                    <template slot="title">
-                        <img :src="'./img/' + item + '.png'" />
-                        <span slot="title">{{ item }}</span>
-                    </template>
-                    <el-menu-item-group :title="item">
-                        <el-menu-item :index="index + '-1'">{{
-                            item
-                        }}</el-menu-item>
-                    </el-menu-item-group>
-                </el-submenu>
-            </el-menu>
-        </div>
+    <div class="aside-nav-container">
+        <el-menu
+            :collapse="true"
+            :background-color="backgroundColor"
+            :text-color="textColor"
+            :active-text-color="activeTextColor"
+        >
+            <el-submenu
+                v-for="(item1, i) in buildingCatagory"
+                :key="item1"
+                :index="'submenu' + i"
+                popper-class="popper"
+            >
+                <template slot="title">
+                    <img :src="'./img/' + item1 + '.png'" />
+                    <span slot="title">{{ item1 }}</span>
+                </template>
+                <el-menu-item-group :title="item1">
+                    <el-menu-item
+                        v-for="(item2, j) in buildingInfo[item1]"
+                        :key="item2.name"
+                        :index="'submenu' + i + '-' + j"
+                    >
+                        {{ item2.name }}
+                    </el-menu-item>
+                </el-menu-item-group>
+            </el-submenu>
+        </el-menu>
     </div>
 </template>
 
 <script>
 import { LabelText } from "./../constants/label-text.js";
+import { BuildingChina } from "./../constants/building-china.js";
+import { LightMode } from "./../constants/light-mode.js";
+import { DarkMode } from "./../constants/dark-mode.js";
 
 export default {
     name: "container-aside-nav",
     data() {
         return {
             buildingCatagory: LabelText.building_catagory,
+            backgroundColor: "",
+            textColor: "",
+            activeTextColor: "",
+            buildingInfo: {
+                住宅: [],
+                农业: [],
+                工业: [],
+                商业: [],
+                市政: [],
+                文化: [],
+                宗教: [],
+                军事: [],
+                美化: [],
+                奇迹: [],
+                通用: [],
+            },
         };
     },
-    methods: {},
+    methods: {
+        onClickDarkMode(isDark) {
+            if (isDark) {
+                this.backgroundColor = DarkMode["color-background-base"];
+                this.textColor = DarkMode["color-primary-text"];
+                this.activeTextColor = DarkMode["color-secondary-text"];
+            } else {
+                this.backgroundColor = LightMode["color-background-base"];
+                this.textColor = LightMode["color-primary-text"];
+                this.activeTextColor = LightMode["color-secondary-text"];
+            }
+        },
+    },
+    mounted() {
+        let that = this;
+        Object.keys(this.buildingInfo).map(function (v) {
+            that.buildingInfo[v] = BuildingChina[v];
+        });
+    },
 };
 </script>
 
 <style lang="scss">
-// .el-menu-item div {
-//     padding: 0 14px !important;
-// }
+.aside-nav-container {
+    overflow-y: auto;
+    height: 100%;
+    width: 84px;
+    transition: color, background, border, box-shadow, 0.3s;
+}
 
-// .el-menu-item img {
-//     width: 36px;
-//     height: 36px;
-//     margin: auto;
-// }
+.el-submenu__title {
+    padding: 0 14px !important;
+}
+
+.el-submenu__title img {
+    width: 36px;
+    height: 36px;
+    margin: auto;
+}
+
+.el-menu--popup {
+    box-shadow: 0 2px 12px 0 $color-border-base !important;
+}
 </style>
