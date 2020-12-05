@@ -26,6 +26,9 @@
 </template>
 
 <script>
+import Vue from "vue";
+import { LabelText } from "./../constants/label-text.js";
+
 export default {
     name: "Building",
     data() {
@@ -42,8 +45,13 @@ export default {
         column: { type: Number, required: true },
         width: { type: Number, required: true },
         height: { type: Number, required: true },
-        range: { type: Number, required: true },
-        isProtection: { type: Boolean, required: false, default: false },
+        range: {
+            type: Number,
+            required: true,
+            validator: function (v) {
+                return !v || v > 3;
+            },
+        },
         isMiracel: { type: Boolean, required: false, default: false },
         isFixed: { type: Boolean, required: false, default: false },
         isRoad: { type: Boolean, required: false, default: false },
@@ -87,6 +95,16 @@ export default {
             style += this.borderBottom ? "solid " : "none ";
             style += this.borderLeft ? "solid " : "none ";
             return style;
+        },
+        isProtection() {
+            if (
+                LabelText.protection_building[Vue.prototype.civil].indexOf(
+                    this.text
+                ) > -1
+            ) {
+                return true;
+            }
+            return false;
         },
         marker() {
             let num = 0;

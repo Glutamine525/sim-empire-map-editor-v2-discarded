@@ -3,7 +3,7 @@
         <el-col :span="15" class="resize-element">
             <div class="splitter"></div>
             <label>地图类型: </label>
-            <select v-model="woodNum">
+            <select v-model="woodNum" @change="onChangeWoodNum">
                 <option
                     v-for="v in woodNumOptions"
                     :key="v"
@@ -13,7 +13,7 @@
             </select>
             <div class="splitter"></div>
             <label>文明: </label>
-            <select v-model="civil">
+            <select v-model="civil" @change="onChangeCivil">
                 <option
                     v-for="v in civilOptions"
                     :key="v.value"
@@ -60,6 +60,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 import { LightMode } from "./../constants/light-mode.js";
 import { DarkMode } from "./../constants/dark-mode.js";
 
@@ -93,6 +94,14 @@ export default {
         },
     },
     methods: {
+        onChangeWoodNum() {
+            Vue.prototype.woodNum = this.woodNum;
+            this.$emit("update:wood-num", this.woodNum);
+        },
+        onChangeCivil() {
+            Vue.prototype.civil = this.civil;
+            this.$emit("update:civil", this.civil);
+        },
         onClickNoWood(isNoWood) {
             this.$emit("update:no-wood", isNoWood);
         },
@@ -134,6 +143,8 @@ export default {
             this.$emit("update:top-height", `${height}px`);
         });
         resizeObserver.observe(document.querySelector(".resize-element"));
+        this.onChangeWoodNum();
+        this.onChangeCivil();
         this.onClickDarkMode(false);
     },
 };
@@ -150,7 +161,7 @@ export default {
     line-height: 1;
     font-size: 14px;
     color: $color-primary-text;
-    transition: color, background, border, box-shadow, 0.3s;
+    transition: color, background 0.3s;
 }
 
 .splitter {

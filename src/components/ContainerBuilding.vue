@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div @mousedown="clickTest">
         <building
             v-for="(item, index) in water"
             :key="'water-' + index"
@@ -24,14 +24,15 @@
             v-for="(item, index) in building"
             :key="'building-' + index"
             v-bind="item"
-            @update:enter-range="onMouseEnter($event)"
-            @update:leave-range="onMouseLeave($event)"
+            @update:enter-range="onMouseEnter"
+            @update:leave-range="onMouseLeave"
         ></building>
         <container-building-range ref="range" v-bind="buildingRange" />
     </div>
 </template>
 
 <script>
+import Vue from "vue";
 import { BuildingFixed } from "./../constants/building-fixed";
 import Building from "./Building.vue";
 import ContainerBuildingRange from "./ContainerBuildingRange.vue";
@@ -64,6 +65,7 @@ export default {
             if (checkBorder) {
                 let li = config.line;
                 let co = config.column;
+                let chessboard = Vue.prototype.chessboard;
                 for (let v of this[catagory]) {
                     if (li - v.line === 1 && co === v.column) {
                         v.borderBottom = false;
@@ -79,8 +81,22 @@ export default {
                         config.borderRight = false;
                     }
                 }
+                // if (chessboard[li - 1][co].occupied) {
+                //     v.borderBottom = false;
+                //     config.borderTop = false;
+                // } else if (chessboard[li + 1][co].occupied) {
+                //     v.borderTop = false;
+                //     config.borderBottom = false;
+                // } else if (chessboard[li][co - 1].occupied) {
+                //     v.borderRight = false;
+                //     config.borderLeft = false;
+                // } else if (chessboard[li][co + 1].occupied) {
+                //     v.borderLeft = false;
+                //     config.borderRight = false;
+                // }
             }
             this[catagory].push(config);
+            this.$emit("update:create-building", config);
         },
         drawFixedBuilding(woodNum, type) {
             woodNum -= 3;
@@ -131,30 +147,43 @@ export default {
         onMouseLeave(event) {
             this.buildingRange.show = false;
         },
+        onChangeWoodNum(woodNum) {
+            this.water = [];
+            this.mountain = [];
+            this.tree = [];
+            this.road = [];
+            this.building = [];
+            this.drawFixedBuilding(woodNum, "water");
+            this.drawFixedBuilding(woodNum, "mountain");
+            this.drawFixedBuilding(woodNum, "tree");
+            this.drawFixedBuilding(woodNum, "road");
+            this.drawFixedBuilding(woodNum, "stone");
+            this.drawFixedBuilding(woodNum, "copper");
+            this.drawFixedBuilding(woodNum, "wood");
+            this.drawFixedBuilding(woodNum, "clay");
+            this.drawFixedBuilding(woodNum, "wharf");
+        },
+        onChangeCivil(civil) {
+            this.building = this.building.filter(function (v) {
+                return v.isFixed;
+            });
+        },
+        clickTest(event) {
+            console.log(event.path);
+        },
     },
     mounted() {
-        let that = this;
-        this.drawFixedBuilding(5, "water");
-        this.drawFixedBuilding(5, "mountain");
-        this.drawFixedBuilding(5, "tree");
-        this.drawFixedBuilding(5, "road");
-        this.drawFixedBuilding(5, "stone");
-        this.drawFixedBuilding(5, "copper");
-        this.drawFixedBuilding(5, "wood");
-        this.drawFixedBuilding(5, "clay");
-        this.drawFixedBuilding(5, "wharf");
         this.createBuilding("building", true, {
             line: 57,
             column: 57,
             width: 3,
             height: 3,
             range: 4,
-            text: "test",
+            text: "永和",
             color: "black",
             background: "red",
             borderWidth: 1,
             borderColor: "var(--color-border-base)",
-            isProtection: true,
         });
         this.createBuilding("building", true, {
             line: 60,
@@ -162,25 +191,23 @@ export default {
             width: 6,
             height: 3,
             range: 6,
-            text: "test",
+            text: "值",
             color: "black",
             background: "red",
             borderWidth: 1,
             borderColor: "var(--color-border-base)",
-            isProtection: true,
         });
         this.createBuilding("building", true, {
             line: 57,
             column: 60,
             width: 3,
             height: 3,
-            range: 0,
+            range: 7,
             text: "test",
             color: "black",
             background: "red",
             borderWidth: 1,
             borderColor: "var(--color-border-base)",
-            isProtection: true,
         });
     },
 };

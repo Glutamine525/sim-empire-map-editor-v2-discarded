@@ -6,7 +6,7 @@ export const LabelText = {
         Greece: ["消", "维", "瞭", "诊所"],
         Aztaka: ["哨", "维", "医院"],
     },
-    nationality: {
+    civil: {
         China: "中国",
         Persian: "波斯",
         Egypt: "埃及",

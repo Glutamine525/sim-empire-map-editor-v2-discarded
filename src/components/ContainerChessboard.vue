@@ -1,9 +1,9 @@
 <template>
     <div>
         <div class="cell-container">
-            <div v-for="li in 116" :key="li" class="line">
+            <div v-for="li in length" :key="li" class="line">
                 <div
-                    v-for="co in 116"
+                    v-for="co in length"
                     :key="co"
                     :id="'cell-' + li + '-' + co"
                     class="cell"
@@ -15,12 +15,13 @@
         <container-biulding
             ref="building"
             class="building-container"
-            @click="test($event)"
+            @update:create-building="onCreateBuilding"
         ></container-biulding>
     </div>
 </template>
 
 <script>
+import Vue from "vue";
 import ContainerBiulding from "./ContainerBuilding.vue";
 
 export default {
@@ -32,6 +33,7 @@ export default {
         return {
             length: 116,
             halfLength: 58,
+            chessboard: [],
         };
     },
     methods: {
@@ -61,9 +63,36 @@ export default {
             if (li === co + this.halfLength) return "bottom-left";
             return false;
         },
-        test(event) {
-            console.log(event);
+        onCreateBuilding(event) {
+            for (let li = event.line; li < event.line + event.height; li++) {
+                for (
+                    let co = event.column;
+                    co < event.column + event.width;
+                    co++
+                ) {
+                    this.chessboard[li][co].occupied = {
+                        line: event.line,
+                        column: event.column,
+                        width: event.width,
+                        height: event.height,
+                        range: event.range,
+                    };
+                }
+            }
         },
+    },
+    created() {
+        for (let li = 1; li <= this.length; li++) {
+            let row = [];
+            for (let co = 1; co <= this.length; co++) {
+                row.push({
+                    isCorner: this.isCorner(li, co),
+                    isBoundary: this.isBoundary(li, co) ? true : false,
+                });
+            }
+            this.chessboard.push(row);
+            Vue.prototype.chessboard = this.chessboard;
+        }
     },
     mounted() {
         document.getElementById("cell-1-60").classList.add("angle-top");

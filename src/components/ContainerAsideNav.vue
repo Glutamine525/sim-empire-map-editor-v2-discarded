@@ -33,6 +33,10 @@
 <script>
 import { LabelText } from "./../constants/label-text.js";
 import { BuildingChina } from "./../constants/building-china.js";
+import { BuildingPersian } from "./../constants/building-persian.js";
+import { BuildingEgypt } from "./../constants/building-egypt.js";
+import { BuildingGreece } from "./../constants/building-greece.js";
+import { BuildingAztaka } from "./../constants/building-aztaka.js";
 import { LightMode } from "./../constants/light-mode.js";
 import { DarkMode } from "./../constants/dark-mode.js";
 
@@ -64,19 +68,35 @@ export default {
             if (isDark) {
                 this.backgroundColor = DarkMode["color-background-base"];
                 this.textColor = DarkMode["color-primary-text"];
-                this.activeTextColor = DarkMode["color-secondary-text"];
+                this.activeTextColor = DarkMode["color-primary"];
             } else {
                 this.backgroundColor = LightMode["color-background-base"];
                 this.textColor = LightMode["color-primary-text"];
-                this.activeTextColor = LightMode["color-secondary-text"];
+                this.activeTextColor = LightMode["color-primary"];
             }
+        },
+        onChangeCivil(civil) {
+            let that = this;
+            Object.keys(this.buildingInfo).map(function (v) {
+                if (civil === "China") {
+                    that.buildingInfo[v] = BuildingChina[v];
+                } else if (civil === "Persian") {
+                    that.buildingInfo[v] = BuildingPersian[v];
+                } else if (civil === "Egypt") {
+                    that.buildingInfo[v] = BuildingEgypt[v];
+                } else if (civil === "Greece") {
+                    that.buildingInfo[v] = BuildingGreece[v];
+                } else if (civil === "Aztaka") {
+                    that.buildingInfo[v] = BuildingAztaka[v];
+                }
+            });
         },
     },
     mounted() {
-        let that = this;
-        Object.keys(this.buildingInfo).map(function (v) {
-            that.buildingInfo[v] = BuildingChina[v];
-        });
+        // let that = this;
+        // Object.keys(this.buildingInfo).map(function (v) {
+        //     that.buildingInfo[v] = BuildingChina[v];
+        // });
     },
 };
 </script>
@@ -86,7 +106,7 @@ export default {
     overflow-y: auto;
     height: 100%;
     width: 84px;
-    transition: color, background, border, box-shadow, 0.3s;
+    transition: color, background 0.3s;
 }
 
 .el-submenu__title {
@@ -101,5 +121,6 @@ export default {
 
 .el-menu--popup {
     box-shadow: 0 2px 12px 0 $color-border-base !important;
+    user-select: none;
 }
 </style>

@@ -3,6 +3,8 @@
         <el-header :height="heightHeader">
             <container-top-nav
                 @update:top-height="heightHeader = $event"
+                @update:wood-num="onChangeWoodNum($event)"
+                @update:civil="onChangeCivil($event)"
                 @update:no-wood="onClickNoWood($event)"
                 @update:dark-mode="onClickDarkMode($event)"
                 :style="{ '--content-height': heightHeader }"
@@ -48,6 +50,13 @@ export default {
     },
     watch: {},
     methods: {
+        onChangeWoodNum(woodNum) {
+            this.$refs.chessboard.$refs.building.onChangeWoodNum(woodNum);
+        },
+        onChangeCivil(civil) {
+            this.$refs.aside.onChangeCivil(civil);
+            this.$refs.chessboard.$refs.building.onChangeCivil(civil);
+        },
         onClickNoWood(isNoWood) {
             let containerBuilding = this.$refs.chessboard.$refs.building;
             if (isNoWood) {
@@ -89,6 +98,7 @@ export default {
     width: 100%;
     border-bottom: 1px solid $color-border-base;
     box-shadow: 3px 3px 5px $color-border-base;
+    transition: color, background 0.3s;
 }
 
 .el-header * {
@@ -106,7 +116,7 @@ export default {
     box-shadow: 3px 3px 5px $color-border-base;
     overflow: hidden;
     padding-bottom: 45px;
-    transition: color, background, border, box-shadow, 0.3s;
+    transition: color, background 0.3s;
 }
 
 .el-main {
