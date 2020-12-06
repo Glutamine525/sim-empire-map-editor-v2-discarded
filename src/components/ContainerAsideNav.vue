@@ -106,7 +106,7 @@ export default {
             newHolding.borderColor = selectedBuilding.border_color;
             newHolding.borderWidth = 1;
             newHolding.isPreview = true;
-            Vue.prototype.operation = "place-building";
+            Vue.prototype.operation = "placing-building";
             Vue.prototype.holding = newHolding;
             Vue.prototype.holdingSession = new Date().getTime();
             this.$emit("update:select-building", indexPath);

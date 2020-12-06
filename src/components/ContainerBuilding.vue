@@ -1,5 +1,5 @@
 <template>
-    <div @mousedown="clickTest">
+    <div @mousedown="clickTest" @mousemove="onMouseMove">
         <div class="barrier">
             <building
                 v-for="(item, index) in water"
@@ -34,6 +34,11 @@
                 @update:leave-range="onMouseLeaveRange"
             />
         </div>
+        <building
+            v-bind="previewBuilding"
+            ref="previewd-building"
+            v-if="isPreviewing"
+        />
         <container-building-range ref="range" v-bind="buildingRange" />
     </div>
 </template>
@@ -178,6 +183,31 @@ export default {
             this.building = this.building.filter(function (v) {
                 return v.isFixed;
             });
+        },
+        onMouseMove(event) {
+            // console.log(event);
+            if (
+                (event.path[0].className === "building-container" ||
+                    event.path[0].className.indexOf("preview") !== -1 ||
+                    event.path[1].className.indexOf("preview") !== -1) &&
+                Vue.prototype.operation === "placing-building"
+            ) {
+                // console.log(
+                //     Math.ceil((event.pageY - 40 - 32) / 30),
+                //     Math.ceil((event.pageX - 32 - 64) / 30)
+                // );
+                let li = Math.ceil((event.pageY - 40 - 32) / 30);
+                let co = Math.ceil((event.pageX - 32 - 64) / 30);
+                let holding = Vue.prototype.holding;
+                let offsetLi = Math.floor((holding.height - 1) / 2);
+                let offsetCo = Math.floor((holding.width - 1) / 2);
+                holding.line = li - offsetLi;
+                holding.column = co - offsetCo;
+                this.previewBuilding = holding;
+                this.isPreviewing = true;
+            } else {
+                this.isPreviewing = false;
+            }
         },
         clickTest(event) {
             if (event.path.length === 10)
