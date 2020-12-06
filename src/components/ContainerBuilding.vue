@@ -57,12 +57,14 @@ export default {
     },
     data() {
         return {
+            heightHeader: 40,
             water: [],
             mountain: [],
             tree: [],
             road: [],
             building: [],
-            lastPreviewSession: "",
+            lastLi: 0,
+            lastCo: 0,
             isPreviewing: false,
             previewBuilding: {
                 line: 0,
@@ -185,19 +187,17 @@ export default {
             });
         },
         onMouseMove(event) {
-            // console.log(event);
+            let li = Math.ceil((event.pageY - this.heightHeader - 32) / 30);
+            let co = Math.ceil((event.pageX - 32 - 64) / 30);
+            if (li === this.lastLi && co === this.lastCo) return;
+            this.lastLi = li;
+            this.lastCo = co;
             if (
                 (event.path[0].className === "building-container" ||
                     event.path[0].className.indexOf("preview") !== -1 ||
                     event.path[1].className.indexOf("preview") !== -1) &&
                 Vue.prototype.operation === "placing-building"
             ) {
-                // console.log(
-                //     Math.ceil((event.pageY - 40 - 32) / 30),
-                //     Math.ceil((event.pageX - 32 - 64) / 30)
-                // );
-                let li = Math.ceil((event.pageY - 40 - 32) / 30);
-                let co = Math.ceil((event.pageX - 32 - 64) / 30);
                 let holding = Vue.prototype.holding;
                 let offsetLi = Math.floor((holding.height - 1) / 2);
                 let offsetCo = Math.floor((holding.width - 1) / 2);

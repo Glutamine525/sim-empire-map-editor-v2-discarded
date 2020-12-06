@@ -3,7 +3,7 @@
         <el-header :height="heightHeader">
             <container-top-nav
                 ref="top"
-                @update:top-height="heightHeader = $event"
+                @update:top-height="onChangeTopNavHeight"
                 @update:wood-num="onChangeWoodNum"
                 @update:civil="onChangeCivil"
                 @update:no-wood="onClickNoWood"
@@ -56,6 +56,13 @@ export default {
     },
     watch: {},
     methods: {
+        onChangeTopNavHeight(event) {
+            this.heightHeader = event;
+            let num = +event.substring(0, event.length - 2);
+            this.$refs.chessboard.$refs[
+                "building-container"
+            ].heightHeader = num;
+        },
         onChangeWoodNum(woodNum) {
             this.$refs.chessboard.$refs["building-container"].onChangeWoodNum(
                 woodNum
