@@ -1,11 +1,11 @@
 <template>
-    <div>
+    <div class="chessboard-container">
         <div class="cell-container">
             <div v-for="li in length" :key="li" class="line">
                 <div
                     v-for="co in length"
                     :key="co"
-                    :id="'cell-' + li + '-' + co"
+                    :id="li + '-' + co"
                     class="cell"
                     :class="assignClass(li, co)"
                 ></div>
@@ -13,7 +13,7 @@
             </div>
         </div>
         <container-biulding
-            ref="building"
+            ref="building-container"
             class="building-container"
             @update:create-building="onCreateBuilding"
         ></container-biulding>
@@ -34,8 +34,10 @@ export default {
             length: 116,
             halfLength: 58,
             chessboard: [],
+            lastPreviewSession: "",
         };
     },
+    computed: {},
     methods: {
         assignClass(li, co) {
             let c = {};
@@ -45,7 +47,23 @@ export default {
             let boundary = this.isBoundary(li, co);
             if (boundary) {
                 c.boundary = true;
-                c[boundary] = true;
+                if (li === 1 && co === this.halfLength + 1) {
+                    c["angle-top"] = true;
+                } else if (
+                    li === this.halfLength &&
+                    co === this.halfLength * 2
+                ) {
+                    c["angle-right"] = true;
+                } else if (
+                    li === this.halfLength * 2 &&
+                    co === this.halfLength
+                ) {
+                    c["angle-bottom"] = true;
+                } else if (li === this.halfLength + 1 && co === 1) {
+                    c["angle-left"] = true;
+                } else {
+                    c[boundary] = true;
+                }
             }
             return c;
         },
@@ -63,6 +81,13 @@ export default {
             if (li === co + this.halfLength) return "bottom-left";
             return false;
         },
+        isInRange(li, co) {
+            if (li + co <= this.halfLength + 2) return false;
+            if (li + co >= this.halfLength * 3) return false;
+            if (li <= co - this.halfLength) return false;
+            if (li >= co + this.halfLength) return false;
+            return true;
+        },
         onCreateBuilding(event) {
             for (let li = event.line; li < event.line + event.height; li++) {
                 for (
@@ -70,15 +95,18 @@ export default {
                     co < event.column + event.width;
                     co++
                 ) {
-                    this.chessboard[li][co].occupied = {
-                        line: event.line,
-                        column: event.column,
-                        width: event.width,
-                        height: event.height,
-                        range: event.range,
-                    };
+                    this.chessboard[li - 1][co - 1].occupied = event;
                 }
             }
+            // if (event.text)
+            //     this.$nextTick(() => {
+            //         setTimeout(() => {
+            //             console.log(this.getBuilding(event.id));
+            //         }, 1);
+            //     });
+        },
+        getBuilding(id) {
+            return this.$refs["building-container"].$refs[id][0];
         },
     },
     created() {
@@ -91,15 +119,8 @@ export default {
                 });
             }
             this.chessboard.push(row);
-            Vue.prototype.chessboard = this.chessboard;
         }
-    },
-    mounted() {
-        document.getElementById("cell-1-60").classList.add("angle-top");
-        document.getElementById("cell-60-1").classList.add("angle-left");
-        document.getElementById("cell-61-1").classList.add("angle-left0");
-        document.getElementById("cell-57-116").classList.add("angle-right");
-        document.getElementById("cell-116-57").classList.add("angle-bottom");
+        Vue.prototype.chessboard = this.chessboard;
     },
 };
 </script>
@@ -127,6 +148,8 @@ export default {
     background: $color-background-base;
     display: inline-block;
     box-sizing: border-box;
+    z-index: 4;
+    position: relative;
 }
 
 .cornor {

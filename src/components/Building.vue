@@ -1,10 +1,11 @@
 <template>
     <div
         class="building"
-        :id="getID"
+        :id="id"
         :class="{
-            hoverable: !isFixed || text,
+            hoverable: isHoverable(),
             'protection-mask': showProtectionMask(),
+            preview: isPreview,
         }"
         :style="{
             top: getTop,
@@ -52,27 +53,25 @@ export default {
                 return !v || v > 3;
             },
         },
-        isMiracel: { type: Boolean, required: false, default: false },
-        isFixed: { type: Boolean, required: false, default: false },
-        isRoad: { type: Boolean, required: false, default: false },
         text: { type: String, required: true },
         color: { type: String, required: true },
         background: { type: String, required: true },
         borderWidth: { type: Number, required: true },
         borderColor: { type: String, required: true },
+        id: { type: String, required: false },
+        isMiracel: { type: Boolean, required: false, default: false },
+        isFixed: { type: Boolean, required: false, default: false },
+        isBarrier: { type: Boolean, required: false, default: false },
+        barrierType: { type: String, required: false, default: "" },
+        isRoad: { type: Boolean, required: false, default: false },
         borderTop: { type: Boolean, required: false, default: true },
         borderRight: { type: Boolean, required: false, default: true },
         borderBottom: { type: Boolean, required: false, default: true },
         borderLeft: { type: Boolean, required: false, default: true },
         special: { type: String, required: false },
+        isPreview: { type: Boolean, required: false, default: false },
     },
     computed: {
-        getID() {
-            if (this.width == this.height)
-                return `${this.line}-${this.column}-${this.width}`;
-            else
-                return `${this.line}-${this.column}-${this.width}-${this.height}`;
-        },
         getTop() {
             return `${(this.line - 1) * 30}px`;
         },
@@ -128,7 +127,10 @@ export default {
             return true;
         },
         showProtectionMask() {
-            return this.isProtection && this.showEffect;
+            return this.isProtection && this.showEffect && !this.isPreview;
+        },
+        isHoverable() {
+            return (!this.isFixed || this.text) && !this.isPreview;
         },
         onMouseMove() {
             if (this.range) {
@@ -164,6 +166,10 @@ export default {
     font-weight: bold;
     user-select: none;
     z-index: 5;
+}
+
+.preview {
+    transition: all 0.05s ease-in;
 }
 
 .hoverable:hover {

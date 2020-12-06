@@ -5,11 +5,12 @@
             :background-color="backgroundColor"
             :text-color="textColor"
             :active-text-color="activeTextColor"
+            @select="onSelectBuilding"
         >
             <el-submenu
-                v-for="(item1, i) in buildingCatagory"
+                v-for="item1 in buildingCatagory"
                 :key="item1"
-                :index="'submenu' + i"
+                :index="item1"
                 popper-class="popper"
             >
                 <template slot="title">
@@ -18,9 +19,9 @@
                 </template>
                 <el-menu-item-group :title="item1">
                     <el-menu-item
-                        v-for="(item2, j) in buildingInfo[item1]"
+                        v-for="item2 in buildingInfo[item1]"
                         :key="item2.name"
-                        :index="'submenu' + i + '-' + j"
+                        :index="item2.name"
                     >
                         {{ item2.name }}
                     </el-menu-item>
@@ -31,6 +32,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 import { LabelText } from "./../constants/label-text.js";
 import { BuildingChina } from "./../constants/building-china.js";
 import { BuildingPersian } from "./../constants/building-persian.js";
@@ -48,6 +50,13 @@ export default {
             backgroundColor: "",
             textColor: "",
             activeTextColor: "",
+            civilBuildingMap: {
+                China: BuildingChina,
+                Persian: BuildingPersian,
+                Egypt: BuildingEgypt,
+                Greece: BuildingGreece,
+                Aztaka: BuildingAztaka,
+            },
             buildingInfo: {
                 住宅: [],
                 农业: [],
@@ -64,8 +73,8 @@ export default {
         };
     },
     methods: {
-        onClickDarkMode(isDark) {
-            if (isDark) {
+        onClickDarkMode(isDarkMode) {
+            if (isDarkMode) {
                 this.backgroundColor = DarkMode["color-background-base"];
                 this.textColor = DarkMode["color-primary-text"];
                 this.activeTextColor = DarkMode["color-primary"];
@@ -78,26 +87,27 @@ export default {
         onChangeCivil(civil) {
             let that = this;
             Object.keys(this.buildingInfo).map(function (v) {
-                if (civil === "China") {
-                    that.buildingInfo[v] = BuildingChina[v];
-                } else if (civil === "Persian") {
-                    that.buildingInfo[v] = BuildingPersian[v];
-                } else if (civil === "Egypt") {
-                    that.buildingInfo[v] = BuildingEgypt[v];
-                } else if (civil === "Greece") {
-                    that.buildingInfo[v] = BuildingGreece[v];
-                } else if (civil === "Aztaka") {
-                    that.buildingInfo[v] = BuildingAztaka[v];
-                }
+                that.buildingInfo[v] = that.civilBuildingMap[civil][v];
             });
         },
+        onSelectBuilding(index, indexPath) {
+            Vue.prototype.holding = {};
+            Vue.prototype.operation = "place-building";
+            Vue.prototype.holding = this.getBuildingInfo(
+                Vue.prototype.civil,
+                indexPath[0],
+                index
+            );
+            Vue.prototype.holdingSession = Date.parse(new Date());
+            this.$emit("update:select-building", indexPath);
+        },
+        getBuildingInfo(civil, catagory, name) {
+            return this.civilBuildingMap[civil][catagory].filter(function (v) {
+                return v.name === name;
+            })[0];
+        },
     },
-    mounted() {
-        // let that = this;
-        // Object.keys(this.buildingInfo).map(function (v) {
-        //     that.buildingInfo[v] = BuildingChina[v];
-        // });
-    },
+    mounted() {},
 };
 </script>
 

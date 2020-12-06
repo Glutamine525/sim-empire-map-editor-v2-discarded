@@ -29,7 +29,7 @@
             <el-switch v-model="isDarkMode" @change="onClickDarkMode" />
             <div class="splitter"></div>
             <label>小地图: </label>
-            <el-switch v-model="isMiniMap" @change="onClickMiniMap" />
+            <el-switch v-model="showMiniMap" @change="onClickMiniMap" />
             <div class="splitter"></div>
             <label>旋转地图: </label>
             <el-switch v-model="isRotated" @change="onClickRotateMap" />
@@ -73,8 +73,9 @@ export default {
             civil: "China",
             isNoWood: false,
             isDarkMode: false,
-            isMiniMap: true,
+            showMiniMap: true,
             isRotated: false,
+            holding: "无",
             woodNumOptions: [5, 4, 3],
             civilOptions: [
                 { label: "中国", value: "China" },
@@ -89,9 +90,6 @@ export default {
         selected() {
             return "无";
         },
-        holding() {
-            return "无";
-        },
     },
     methods: {
         onChangeWoodNum() {
@@ -102,11 +100,11 @@ export default {
             Vue.prototype.civil = this.civil;
             this.$emit("update:civil", this.civil);
         },
-        onClickNoWood(isNoWood) {
-            this.$emit("update:no-wood", isNoWood);
+        onClickNoWood() {
+            this.$emit("update:no-wood", this.isNoWood);
         },
-        onClickDarkMode(isDark) {
-            if (isDark) {
+        onClickDarkMode() {
+            if (this.isDarkMode) {
                 Object.keys(DarkMode).map(function (v) {
                     document.body.style.setProperty(`--${v}`, DarkMode[v]);
                 });
@@ -115,21 +113,21 @@ export default {
                     document.body.style.setProperty(`--${v}`, LightMode[v]);
                 });
             }
-            this.$emit("update:dark-mode", isDark);
+            this.$emit("update:dark-mode", this.isDarkMode);
         },
-        onClickMiniMap(isMiniMap) {
-            if (isMiniMap) {
-                console.log({ isMiniMap });
-            } else {
-                console.log({ isMiniMap });
-            }
+        onClickMiniMap() {
+            // if (this.showMiniMap) {
+            //     console.log(this.showMiniMap);
+            // } else {
+            //     console.log(this.showMiniMap);
+            // }
         },
-        onClickRotateMap(isRotated) {
-            if (isRotated) {
-                console.log({ isRotated });
-            } else {
-                console.log({ isRotated });
-            }
+        onClickRotateMap() {
+            // if (this.isRotated) {
+            //     console.log(this.isRotated);
+            // } else {
+            //     console.log(this.isRotated);
+            // }
         },
     },
     mounted() {
@@ -143,9 +141,6 @@ export default {
             this.$emit("update:top-height", `${height}px`);
         });
         resizeObserver.observe(document.querySelector(".resize-element"));
-        this.onChangeWoodNum();
-        this.onChangeCivil();
-        this.onClickDarkMode(false);
     },
 };
 </script>

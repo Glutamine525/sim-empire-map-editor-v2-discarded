@@ -9,8 +9,8 @@
 
 .top-left::after {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: -10px;
+    left: 20px;
     content: "";
     border-top: 10px solid transparent;
     border-right: 10px solid $color-black;
@@ -63,108 +63,101 @@
 
 .bottom-left::after {
     position: absolute;
-    top: 30px;
-    left: 20px;
+    top: 0;
+    left: -10px;
     content: "";
     border-right: 10px solid $color-black;
     border-bottom: 10px solid transparent;
 }
 
 .angle-top {
-    position: relative;
-}
-
-.angle-top::after {
     position: absolute;
-    top: 20px;
-    left: 0;
-    content: "";
-    border-right: 10px solid transparent;
-    border-bottom: 10px solid $color-black;
-    z-index: 6;
+    top: 0;
+    height: 10px !important;
 }
 
 .angle-top::before {
     position: absolute;
     top: 0;
-    left: -20px;
+    left: 30px;
     content: "";
-    border-right: 20px solid $color-background-darker;
-    border-bottom: 20px solid transparent;
-    z-index: 6;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid $color-black;
+}
+
+.angle-top::after {
+    position: absolute;
+    content: "";
+    top: -30px;
+    border: 15px solid;
+    border-color: transparent transparent $color-black transparent;
 }
 
 .angle-right {
-    position: relative;
+    position: absolute;
+    left: 0;
+    width: 10px !important;
 }
 
 .angle-right::before {
     position: absolute;
     top: 30px;
-    left: 10px;
+    left: 0;
     content: "";
-    border-right: 20px solid $color-background-darker;
-    border-bottom: 20px solid transparent;
-    z-index: 6;
+    border-left: 10px solid $color-black;
+    border-bottom: 10px solid transparent;
+}
+
+.angle-right::after {
+    position: absolute;
+    content: "";
+    left: 10px;
+    border: 15px solid;
+    border-color: transparent transparent transparent $color-black;
 }
 
 .angle-bottom {
-    position: relative;
+    position: absolute;
+    top: -20px;
+    height: 10px !important;
 }
 
 .angle-bottom::before {
     position: absolute;
-    top: 10px;
-    left: 30px;
+    top: 0;
+    left: -10px;
     content: "";
-    border-right: 20px solid transparent;
-    border-bottom: 20px solid $color-background-darker;
-    z-index: 6;
+    border-right: 10px solid $color-black;
+    border-bottom: 10px solid transparent;
 }
 
 .angle-bottom::after {
     position: absolute;
-    top: 30px;
-    left: 30px;
     content: "";
-    border: 5px solid $color-background-darker;
-    z-index: 6;
+    top: 10px;
+    border: 15px solid;
+    border-color: $color-black transparent transparent transparent;
 }
 
 .angle-left {
-    position: relative;
+    margin-left: 20px;
+    position: absolute;
+    width: 10px !important;
 }
 
 .angle-left::before {
     position: absolute;
-    top: -20px;
+    top: -10px;
     left: 0;
     content: "";
-    border-right: 30px solid $color-black;
-    border-bottom: 30px solid $color-background-darker;
-    z-index: 6;
+    border-right: 10px solid $color-black;
+    border-top: 10px solid transparent;
 }
 
 .angle-left::after {
     position: absolute;
-    top: -20px;
-    left: 0;
     content: "";
-    border-left: 10px solid $color-background-darker;
-    border-bottom: 10px solid $color-black;
-    z-index: 6;
-}
-
-.angle-left0 {
-    position: relative;
-}
-
-.angle-left0::before {
-    position: absolute;
-    top: -60px;
-    left: -10px;
-    content: "";
-    border-right: 30px solid transparent;
-    border-bottom: 30px solid $color-background-darker;
-    z-index: 6;
+    right: 10px;
+    border: 15px solid;
+    border-color: transparent $color-black transparent transparent;
 }

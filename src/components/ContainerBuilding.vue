@@ -1,32 +1,39 @@
 <template>
     <div @mousedown="clickTest">
-        <building
-            v-for="(item, index) in water"
-            :key="'water-' + index"
-            v-bind="item"
-        ></building>
-        <building
-            v-for="(item, index) in mountain"
-            :key="'mountain-' + index"
-            v-bind="item"
-        ></building>
-        <building
-            v-for="(item, index) in tree"
-            :key="'tree-' + index"
-            v-bind="item"
-        ></building>
-        <building
-            v-for="(item, index) in road"
-            :key="'road-' + index"
-            v-bind="item"
-        ></building>
-        <building
-            v-for="(item, index) in building"
-            :key="'building-' + index"
-            v-bind="item"
-            @update:enter-range="onMouseEnter"
-            @update:leave-range="onMouseLeave"
-        ></building>
+        <div class="barrier">
+            <building
+                v-for="(item, index) in water"
+                :key="'water-' + index"
+                v-bind="item"
+            />
+            <building
+                v-for="(item, index) in mountain"
+                :key="'mountain-' + index"
+                v-bind="item"
+            />
+            <building
+                v-for="(item, index) in tree"
+                :key="'tree-' + index"
+                v-bind="item"
+            />
+        </div>
+        <div class="road">
+            <building
+                v-for="(item, index) in road"
+                :key="'road-' + index"
+                v-bind="item"
+            />
+        </div>
+        <div class="buildings">
+            <building
+                v-for="(item, index) in building"
+                :key="'building-' + index"
+                v-bind="item"
+                :ref="item.id"
+                @update:enter-range="onMouseEnterRange"
+                @update:leave-range="onMouseLeaveRange"
+            />
+        </div>
         <container-building-range ref="range" v-bind="buildingRange" />
     </div>
 </template>
@@ -50,6 +57,21 @@ export default {
             tree: [],
             road: [],
             building: [],
+            lastPreviewSession: "",
+            isPreviewing: false,
+            previewBuilding: {
+                line: 0,
+                height: 0,
+                width: 0,
+                height: 0,
+                range: 0,
+                text: "",
+                color: "#000000",
+                background: "#ffffff",
+                borderWidth: 1,
+                borderColor: "#000000",
+                isPreview: true,
+            },
             buildingRange: {
                 show: false,
                 originLi: 0,
@@ -61,39 +83,64 @@ export default {
         };
     },
     methods: {
+        getID(line, column, width, height) {
+            if (width === height) return `${line}-${column}-${width}`;
+            else return `${line}-${column}-${width}-${height}`;
+        },
+        getBuilding(id) {
+            return this.$refs[id][0];
+        },
         createBuilding(catagory, checkBorder, config) {
+            config.id = this.getID(
+                config.line,
+                config.column,
+                config.width,
+                config.height
+            );
             if (checkBorder) {
                 let li = config.line;
                 let co = config.column;
                 let chessboard = Vue.prototype.chessboard;
-                for (let v of this[catagory]) {
-                    if (li - v.line === 1 && co === v.column) {
-                        v.borderBottom = false;
-                        config.borderTop = false;
-                    } else if (li - v.line === -1 && co === v.column) {
-                        v.borderTop = false;
-                        config.borderBottom = false;
-                    } else if (co - v.column === 1 && li === v.line) {
-                        v.borderRight = false;
-                        config.borderLeft = false;
-                    } else if (co - v.column === -1 && li === v.line) {
-                        v.borderLeft = false;
-                        config.borderRight = false;
-                    }
+                let target = chessboard[li - 2][co - 1].occupied;
+                if (
+                    target &&
+                    target.isBarrier &&
+                    config.isBarrier &&
+                    target.barrierType === config.barrierType
+                ) {
+                    target.borderBottom = false;
+                    config.borderTop = false;
                 }
-                // if (chessboard[li - 1][co].occupied) {
-                //     v.borderBottom = false;
-                //     config.borderTop = false;
-                // } else if (chessboard[li + 1][co].occupied) {
-                //     v.borderTop = false;
-                //     config.borderBottom = false;
-                // } else if (chessboard[li][co - 1].occupied) {
-                //     v.borderRight = false;
-                //     config.borderLeft = false;
-                // } else if (chessboard[li][co + 1].occupied) {
-                //     v.borderLeft = false;
-                //     config.borderRight = false;
-                // }
+                target = chessboard[li][co - 1].occupied;
+                if (
+                    target &&
+                    target.isBarrier &&
+                    config.isBarrier &&
+                    target.barrierType === config.barrierType
+                ) {
+                    target.borderTop = false;
+                    config.borderBottom = false;
+                }
+                target = chessboard[li - 1][co - 2].occupied;
+                if (
+                    target &&
+                    target.isBarrier &&
+                    config.isBarrier &&
+                    target.barrierType === config.barrierType
+                ) {
+                    target.borderRight = false;
+                    config.borderLeft = false;
+                }
+                target = chessboard[li - 1][co].occupied;
+                if (
+                    target &&
+                    target.isBarrier &&
+                    config.isBarrier &&
+                    target.barrierType === config.barrierType
+                ) {
+                    target.borderLeft = false;
+                    config.borderRight = false;
+                }
             }
             this[catagory].push(config);
             this.$emit("update:create-building", config);
@@ -105,17 +152,25 @@ export default {
                 let unit = v.split("-");
                 if (unit.length < 3) unit.push(1);
                 if (unit.length < 4) unit.push(unit[2]);
-                let targetArr =
+                let catagory =
                     "water|mountain|tree|road".split("|").indexOf(type) > -1
                         ? type
                         : "building";
-                that.createBuilding(targetArr, true, {
+                let isBarrier =
+                    catagory !== "building" && catagory !== "road"
+                        ? true
+                        : false;
+                let barrierType =
+                    catagory !== "building" && catagory !== "road" ? type : "";
+                that.createBuilding(catagory, true, {
                     line: +unit[0],
                     column: +unit[1],
                     width: +unit[2],
                     height: +unit[3],
                     range: 0,
                     isFixed: true,
+                    isBarrier: isBarrier,
+                    barrierType: barrierType,
                     isRoad: type === "road",
                     text: BuildingFixed[`text_${type}`],
                     color: "var(--color-black)",
@@ -125,7 +180,7 @@ export default {
                 });
             });
         },
-        onMouseEnter(event) {
+        onMouseEnterRange(event) {
             this.buildingRange.show = true;
             this.buildingRange.originLi = event.li;
             this.buildingRange.originCo = event.co;
@@ -144,7 +199,7 @@ export default {
             //     )
             // );
         },
-        onMouseLeave(event) {
+        onMouseLeaveRange(event) {
             this.buildingRange.show = false;
         },
         onChangeWoodNum(woodNum) {
@@ -170,46 +225,33 @@ export default {
         },
         clickTest(event) {
             console.log(event.path);
+            this.createBuilding("building", true, {
+                line: 57,
+                column: 57,
+                width: 3,
+                height: 3,
+                range: 4,
+                text: "永和",
+                color: "black",
+                background: "red",
+                borderWidth: 1,
+                borderColor: "var(--color-border-base)",
+            });
+            this.createBuilding("building", true, {
+                line: 57,
+                column: 60,
+                width: 3,
+                height: 6,
+                range: 7,
+                text: "test",
+                color: "black",
+                background: "red",
+                borderWidth: 1,
+                borderColor: "var(--color-border-base)",
+            });
         },
     },
-    mounted() {
-        this.createBuilding("building", true, {
-            line: 57,
-            column: 57,
-            width: 3,
-            height: 3,
-            range: 4,
-            text: "永和",
-            color: "black",
-            background: "red",
-            borderWidth: 1,
-            borderColor: "var(--color-border-base)",
-        });
-        this.createBuilding("building", true, {
-            line: 60,
-            column: 57,
-            width: 6,
-            height: 3,
-            range: 6,
-            text: "值",
-            color: "black",
-            background: "red",
-            borderWidth: 1,
-            borderColor: "var(--color-border-base)",
-        });
-        this.createBuilding("building", true, {
-            line: 57,
-            column: 60,
-            width: 3,
-            height: 3,
-            range: 7,
-            text: "test",
-            color: "black",
-            background: "red",
-            borderWidth: 1,
-            borderColor: "var(--color-border-base)",
-        });
-    },
+    mounted() {},
 };
 </script>
 

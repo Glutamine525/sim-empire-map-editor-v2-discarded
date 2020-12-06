@@ -2,11 +2,12 @@
     <el-container>
         <el-header :height="heightHeader">
             <container-top-nav
+                ref="top"
                 @update:top-height="heightHeader = $event"
-                @update:wood-num="onChangeWoodNum($event)"
-                @update:civil="onChangeCivil($event)"
-                @update:no-wood="onClickNoWood($event)"
-                @update:dark-mode="onClickDarkMode($event)"
+                @update:wood-num="onChangeWoodNum"
+                @update:civil="onChangeCivil"
+                @update:no-wood="onClickNoWood"
+                @update:dark-mode="onClickDarkMode"
                 :style="{ '--content-height': heightHeader }"
             />
         </el-header>
@@ -15,7 +16,10 @@
                 :width="widthAside"
                 :style="{ 'margin-top': heightHeader }"
             >
-                <container-aside-nav ref="aside" />
+                <container-aside-nav
+                    ref="aside"
+                    @update:select-building="onSelectBuilding"
+                />
             </el-aside>
             <el-main
                 :style="{
@@ -51,14 +55,20 @@ export default {
     watch: {},
     methods: {
         onChangeWoodNum(woodNum) {
-            this.$refs.chessboard.$refs.building.onChangeWoodNum(woodNum);
+            this.$refs.chessboard.$refs["building-container"].onChangeWoodNum(
+                woodNum
+            );
         },
         onChangeCivil(civil) {
             this.$refs.aside.onChangeCivil(civil);
-            this.$refs.chessboard.$refs.building.onChangeCivil(civil);
+            this.$refs.chessboard.$refs["building-container"].onChangeCivil(
+                civil
+            );
         },
         onClickNoWood(isNoWood) {
-            let containerBuilding = this.$refs.chessboard.$refs.building;
+            let containerBuilding = this.$refs.chessboard.$refs[
+                "building-container"
+            ];
             if (isNoWood) {
                 containerBuilding.tree = [];
             } else {
@@ -70,7 +80,9 @@ export default {
                         width: 1,
                         height: 1,
                         range: 0,
+                        isFixed: true,
                         isBarrier: true,
+                        barrierType: "tree",
                         text: "",
                         color: "red",
                         background: color_tree,
@@ -80,18 +92,33 @@ export default {
                 });
             }
         },
-        onClickDarkMode(isDark) {
-            this.$refs.aside.onClickDarkMode(isDark);
+        onClickDarkMode(isDarkMode) {
+            this.$refs.aside.onClickDarkMode(isDarkMode);
+        },
+        onSelectBuilding(indexPath) {
+            this.$refs.top.holding = indexPath.join("-");
         },
     },
-    mounted() {},
+    mounted() {
+        this.$refs.top.woodNum = 5;
+        this.$refs.top.onChangeWoodNum();
+        this.$refs.top.civil = "China";
+        this.$refs.top.onChangeCivil();
+        this.$refs.top.isNoWood = false;
+        this.$refs.top.onClickNoWood();
+        this.$refs.top.isDarkMode = false;
+        this.$refs.top.onClickDarkMode();
+        this.$refs.top.showMiniMap = true;
+        this.$refs.top.onClickMiniMap();
+        this.$refs.top.isRotated = false;
+        this.$refs.top.onClickRotateMap();
+    },
 };
 </script>
 
 <style lang="scss" scoped>
 .el-header {
     background-color: $color-background-base;
-    color: #333;
     margin: 0;
     padding: 0;
     position: fixed;
@@ -107,7 +134,6 @@ export default {
 
 .el-aside {
     background-color: $color-background-base;
-    color: #333;
     margin: 0;
     padding: 0;
     position: fixed;
@@ -121,7 +147,6 @@ export default {
 
 .el-main {
     background-color: $color-background-darker;
-    color: #333;
     margin: 0;
     padding: 32px;
     position: absolute;
