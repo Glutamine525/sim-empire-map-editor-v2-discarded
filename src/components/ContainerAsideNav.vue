@@ -91,14 +91,24 @@ export default {
             });
         },
         onSelectBuilding(index, indexPath) {
-            Vue.prototype.holding = {};
-            Vue.prototype.operation = "place-building";
-            Vue.prototype.holding = this.getBuildingInfo(
+            let newHolding = {};
+            let selectedBuilding = this.getBuildingInfo(
                 Vue.prototype.civil,
                 indexPath[0],
                 index
             );
-            Vue.prototype.holdingSession = Date.parse(new Date());
+            newHolding.text = selectedBuilding.text;
+            newHolding.width = selectedBuilding.size;
+            newHolding.height = selectedBuilding.size;
+            newHolding.range = selectedBuilding.range_size;
+            newHolding.color = selectedBuilding.color;
+            newHolding.background = selectedBuilding.background_color;
+            newHolding.borderColor = selectedBuilding.border_color;
+            newHolding.borderWidth = 1;
+            newHolding.isPreview = true;
+            Vue.prototype.operation = "place-building";
+            Vue.prototype.holding = newHolding;
+            Vue.prototype.holdingSession = new Date().getTime();
             this.$emit("update:select-building", indexPath);
         },
         getBuildingInfo(civil, catagory, name) {

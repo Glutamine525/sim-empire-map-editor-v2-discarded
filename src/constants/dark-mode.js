@@ -8,7 +8,7 @@ export const DarkMode = {
     "color-regular-text": "#606266",
     "color-secondary-text": "#909399",
     "color-placeholder": "#c0c4cc",
-    "color-border-darker": "#b0bec5",
+    "color-border-darker": "#03051d",
     "color-border-base": "#11131B",
     "color-border-lighter": "#eceff1",
     "color-background-darker": "#1B1E2B",

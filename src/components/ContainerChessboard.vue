@@ -1,21 +1,13 @@
 <template>
     <div class="chessboard-container">
-        <div class="cell-container">
-            <div v-for="li in length" :key="li" class="line">
-                <div
-                    v-for="co in length"
-                    :key="co"
-                    :id="li + '-' + co"
-                    class="cell"
-                    :class="assignClass(li, co)"
-                ></div>
-                <br />
-            </div>
-        </div>
+        <canvas
+            :width="length * 30"
+            :height="length * 30"
+            id="cell-canvas"
+        ></canvas>
         <container-biulding
             ref="building-container"
             class="building-container"
-            @update:create-building="onCreateBuilding"
         ></container-biulding>
     </div>
 </template>
@@ -23,6 +15,8 @@
 <script>
 import Vue from "vue";
 import ContainerBiulding from "./ContainerBuilding.vue";
+import { LightMode } from "./../constants/light-mode.js";
+import { DarkMode } from "./../constants/dark-mode.js";
 
 export default {
     name: "container-chessboard",
@@ -39,34 +33,6 @@ export default {
     },
     computed: {},
     methods: {
-        assignClass(li, co) {
-            let c = {};
-            if (this.isCorner(li, co)) {
-                c.cornor = true;
-            }
-            let boundary = this.isBoundary(li, co);
-            if (boundary) {
-                c.boundary = true;
-                if (li === 1 && co === this.halfLength + 1) {
-                    c["angle-top"] = true;
-                } else if (
-                    li === this.halfLength &&
-                    co === this.halfLength * 2
-                ) {
-                    c["angle-right"] = true;
-                } else if (
-                    li === this.halfLength * 2 &&
-                    co === this.halfLength
-                ) {
-                    c["angle-bottom"] = true;
-                } else if (li === this.halfLength + 1 && co === 1) {
-                    c["angle-left"] = true;
-                } else {
-                    c[boundary] = true;
-                }
-            }
-            return c;
-        },
         isCorner(li, co) {
             if (li + co < this.halfLength + 2) return true;
             if (li + co > this.halfLength * 3) return true;
@@ -75,11 +41,18 @@ export default {
             return false;
         },
         isBoundary(li, co) {
-            if (li + co === this.halfLength + 2) return "top-left";
-            if (li + co === this.halfLength * 3) return "bottom-right";
-            if (li === co - this.halfLength) return "top-right";
-            if (li === co + this.halfLength) return "bottom-left";
-            return false;
+            let result = false;
+            if (li + co === this.halfLength + 2) result = "top-left";
+            if (li + co === this.halfLength * 3) result = "bottom-right";
+            if (li === co - this.halfLength) result = "top-right";
+            if (li === co + this.halfLength) result = "bottom-left";
+            if (li === 1 && co === this.halfLength + 1) result = "angle-top";
+            if (li === this.halfLength && co === this.halfLength * 2)
+                result = "angle-right";
+            if (li === this.halfLength * 2 && co === this.halfLength)
+                result = "angle-bottom";
+            if (li === this.halfLength + 1 && co === 1) result = "angle-left";
+            return result;
         },
         isInRange(li, co) {
             if (li + co <= this.halfLength + 2) return false;
@@ -88,79 +61,103 @@ export default {
             if (li >= co + this.halfLength) return false;
             return true;
         },
-        onCreateBuilding(event) {
-            for (let li = event.line; li < event.line + event.height; li++) {
-                for (
-                    let co = event.column;
-                    co < event.column + event.width;
-                    co++
-                ) {
-                    this.chessboard[li - 1][co - 1].occupied = event;
+        onClickDarkMode(isDarkMode) {
+            if (isDarkMode) {
+                this.drawCell(
+                    DarkMode["color-border-darker"],
+                    DarkMode["color-black"]
+                );
+            } else {
+                this.drawCell(
+                    LightMode["color-border-darker"],
+                    LightMode["color-black"]
+                );
+            }
+        },
+        drawCell(borderColor, boundaryColor) {
+            let canvas = document.getElementById("cell-canvas");
+            let ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, 116 * 30, 116 * 30);
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = borderColor;
+            ctx.fillStyle = boundaryColor;
+            for (let li = 1; li <= this.length; li++) {
+                for (let co = 1; co <= this.length; co++) {
+                    if (this.isInRange(li, co)) {
+                        ctx.strokeRect((co - 1) * 30, (li - 1) * 30, 30, 30);
+                    }
+                    let boundary = this.isBoundary(li, co);
+                    switch (boundary) {
+                        case "top-left":
+                            ctx.moveTo((co - 1) * 30 - 10, li * 30);
+                            ctx.lineTo(co * 30, li * 30);
+                            ctx.lineTo(co * 30, (li - 1) * 30 - 10);
+                            ctx.fill();
+                            break;
+                        case "top-right":
+                            ctx.moveTo((co - 1) * 30, (li - 1) * 30 - 10);
+                            ctx.lineTo((co - 1) * 30, li * 30);
+                            ctx.lineTo(co * 30 + 10, li * 30);
+                            ctx.fill();
+                            break;
+                        case "bottom-left":
+                            ctx.moveTo((co - 1) * 30 - 10, (li - 1) * 30);
+                            ctx.lineTo(co * 30, (li - 1) * 30);
+                            ctx.lineTo(co * 30, li * 30 + 10);
+                            ctx.fill();
+                            break;
+                        case "bottom-right":
+                            ctx.moveTo((co - 1) * 30, li * 30 + 10);
+                            ctx.lineTo((co - 1) * 30, (li - 1) * 30);
+                            ctx.lineTo(co * 30 + 10, (li - 1) * 30);
+                            ctx.fill();
+                            break;
+                        case "angle-top":
+                            ctx.moveTo(co * 30, li * 30);
+                            ctx.lineTo((co - 1) * 30, li * 30);
+                            ctx.lineTo((co - 1) * 30, li * 30 - 10);
+                            ctx.lineTo(co * 30 - 15, li * 30 - 25);
+                            ctx.lineTo(co * 30, li * 30 - 10);
+                            ctx.fill();
+                            break;
+                        case "angle-right":
+                            ctx.moveTo((co - 1) * 30, li * 30);
+                            ctx.lineTo((co - 1) * 30, (li - 1) * 30);
+                            ctx.lineTo((co - 1) * 30 + 10, (li - 1) * 30);
+                            ctx.lineTo(co * 30 - 5, li * 30 - 15);
+                            ctx.lineTo((co - 1) * 30 + 10, li * 30);
+                            ctx.fill();
+                            break;
+                        case "angle-bottom":
+                            ctx.moveTo((co - 1) * 30, (li - 1) * 30);
+                            ctx.lineTo(co * 30, (li - 1) * 30);
+                            ctx.lineTo(co * 30, (li - 1) * 30 + 10);
+                            ctx.lineTo(co * 30 - 15, li * 30 - 5);
+                            ctx.lineTo((co - 1) * 30, (li - 1) * 30 + 10);
+                            ctx.fill();
+                            break;
+                        case "angle-left":
+                            ctx.moveTo(co * 30, li * 30);
+                            ctx.lineTo(co * 30, (li - 1) * 30);
+                            ctx.lineTo(co * 30 - 10, (li - 1) * 30);
+                            ctx.lineTo(co * 30 - 25, li * 30 - 15);
+                            ctx.lineTo(co * 30 - 10, li * 30);
+                            ctx.fill();
+                            break;
+                    }
                 }
             }
-            // if (event.text)
-            //     this.$nextTick(() => {
-            //         setTimeout(() => {
-            //             console.log(this.getBuilding(event.id));
-            //         }, 1);
-            //     });
         },
-        getBuilding(id) {
-            return this.$refs["building-container"].$refs[id][0];
-        },
-    },
-    created() {
-        for (let li = 1; li <= this.length; li++) {
-            let row = [];
-            for (let co = 1; co <= this.length; co++) {
-                row.push({
-                    isCorner: this.isCorner(li, co),
-                    isBoundary: this.isBoundary(li, co) ? true : false,
-                });
-            }
-            this.chessboard.push(row);
-        }
-        Vue.prototype.chessboard = this.chessboard;
     },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "./../styles/boundary.scss";
-
 .building-container {
     width: 3480px;
     height: 3480px;
     position: absolute;
     top: 32px;
     left: 32px;
-}
-
-.line {
-    line-height: 0px;
-    white-space: nowrap;
-}
-
-.cell {
-    width: 30px;
-    height: 30px;
-    border: 1px solid $color-border-base;
-    background: $color-background-base;
-    display: inline-block;
-    box-sizing: border-box;
-    z-index: 4;
-    position: relative;
-}
-
-.cornor {
-    background: $color-background-darker;
-    border: 0;
-}
-
-.boundary {
-    background: $color-black;
-    border: 0;
-    position: relative;
-    z-index: 5;
 }
 </style>

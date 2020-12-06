@@ -40,7 +40,7 @@
 
 <script>
 import Vue from "vue";
-import { BuildingFixed } from "./../constants/building-fixed";
+import { BuildingFixed } from "./../constants/building-fixed.js";
 import Building from "./Building.vue";
 import ContainerBuildingRange from "./ContainerBuildingRange.vue";
 
@@ -98,52 +98,8 @@ export default {
                 config.height
             );
             if (checkBorder) {
-                let li = config.line;
-                let co = config.column;
-                let chessboard = Vue.prototype.chessboard;
-                let target = chessboard[li - 2][co - 1].occupied;
-                if (
-                    target &&
-                    target.isBarrier &&
-                    config.isBarrier &&
-                    target.barrierType === config.barrierType
-                ) {
-                    target.borderBottom = false;
-                    config.borderTop = false;
-                }
-                target = chessboard[li][co - 1].occupied;
-                if (
-                    target &&
-                    target.isBarrier &&
-                    config.isBarrier &&
-                    target.barrierType === config.barrierType
-                ) {
-                    target.borderTop = false;
-                    config.borderBottom = false;
-                }
-                target = chessboard[li - 1][co - 2].occupied;
-                if (
-                    target &&
-                    target.isBarrier &&
-                    config.isBarrier &&
-                    target.barrierType === config.barrierType
-                ) {
-                    target.borderRight = false;
-                    config.borderLeft = false;
-                }
-                target = chessboard[li - 1][co].occupied;
-                if (
-                    target &&
-                    target.isBarrier &&
-                    config.isBarrier &&
-                    target.barrierType === config.barrierType
-                ) {
-                    target.borderLeft = false;
-                    config.borderRight = false;
-                }
             }
             this[catagory].push(config);
-            this.$emit("update:create-building", config);
         },
         drawFixedBuilding(woodNum, type) {
             woodNum -= 3;
@@ -224,31 +180,32 @@ export default {
             });
         },
         clickTest(event) {
-            console.log(event.path);
-            this.createBuilding("building", true, {
-                line: 57,
-                column: 57,
-                width: 3,
-                height: 3,
-                range: 4,
-                text: "永和",
-                color: "black",
-                background: "red",
-                borderWidth: 1,
-                borderColor: "var(--color-border-base)",
-            });
-            this.createBuilding("building", true, {
-                line: 57,
-                column: 60,
-                width: 3,
-                height: 6,
-                range: 7,
-                text: "test",
-                color: "black",
-                background: "red",
-                borderWidth: 1,
-                borderColor: "var(--color-border-base)",
-            });
+            if (event.path.length === 10)
+                this.createBuilding("building", true, {
+                    line: 57,
+                    column: 57,
+                    width: 3,
+                    height: 3,
+                    range: 4,
+                    text: "永和",
+                    color: "black",
+                    background: "red",
+                    borderWidth: 1,
+                    borderColor: "var(--color-border-base)",
+                });
+            else
+                this.createBuilding("building", true, {
+                    line: 56,
+                    column: 59,
+                    width: 3,
+                    height: 6,
+                    range: 7,
+                    text: "test",
+                    color: "black",
+                    background: "red",
+                    borderWidth: 1,
+                    borderColor: "var(--color-border-base)",
+                });
         },
     },
     mounted() {},

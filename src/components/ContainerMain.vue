@@ -34,6 +34,8 @@
 </template>
 
 <script>
+import Vue from "vue";
+import { BuildingFixed } from "./../constants/building-fixed.js";
 import ContainerTopNav from "./ContainerTopNav.vue";
 import ContainerAsideNav from "./ContainerAsideNav.vue";
 import ContainerChessboard from "./ContainerChessboard.vue";
@@ -72,7 +74,7 @@ export default {
             if (isNoWood) {
                 containerBuilding.tree = [];
             } else {
-                coord_barrier_tree[2].map(function (v) {
+                BuildingFixed.tree[Vue.prototype.woodNum - 3].map(function (v) {
                     let unit = v.split("-");
                     containerBuilding.createBuilding("tree", true, {
                         line: +unit[0],
@@ -84,8 +86,8 @@ export default {
                         isBarrier: true,
                         barrierType: "tree",
                         text: "",
-                        color: "red",
-                        background: color_tree,
+                        color: "var(--color-black)",
+                        background: BuildingFixed.color_tree,
                         borderWidth: 1,
                         borderColor: "var(--color-border-base)",
                     });
@@ -94,6 +96,7 @@ export default {
         },
         onClickDarkMode(isDarkMode) {
             this.$refs.aside.onClickDarkMode(isDarkMode);
+            this.$refs.chessboard.onClickDarkMode(isDarkMode);
         },
         onSelectBuilding(indexPath) {
             this.$refs.top.holding = indexPath.join("-");
