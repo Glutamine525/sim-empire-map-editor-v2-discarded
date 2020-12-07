@@ -94,7 +94,7 @@ export default {
                 Persian: BuildingPersian,
                 Egypt: BuildingEgypt,
                 Greece: BuildingGreece,
-                Aztaka: BuildingAztaka,
+                Aztaka: BuildingAztaka
             },
             buildingInfo: {
                 住宅: [],
@@ -107,23 +107,23 @@ export default {
                 军事: [],
                 美化: [],
                 奇迹: [],
-                通用: [],
-            },
+                通用: []
+            }
         };
     },
     computed: {
         operationCatagory1() {
             let that = this;
-            return this.operationCatagory.filter(function (v) {
+            return this.operationCatagory.filter(function(v) {
                 return v in that.labelText;
             });
         },
         operationCatagory2() {
             let that = this;
-            return this.operationCatagory.filter(function (v) {
+            return this.operationCatagory.filter(function(v) {
                 return !(v in that.labelText);
             });
-        },
+        }
     },
     methods: {
         onClickDarkMode(isDarkMode) {
@@ -139,7 +139,7 @@ export default {
         },
         onChangeCivil(civil) {
             let that = this;
-            Object.keys(this.buildingInfo).map(function (v) {
+            Object.keys(this.buildingInfo).map(function(v) {
                 that.buildingInfo[v] = that.civilBuildingMap[civil][v];
             });
         },
@@ -151,7 +151,6 @@ export default {
             }
         },
         onSelectOperation(index, indexPath) {
-            console.log(index, indexPath);
             switch (index) {
                 case "道路":
                     let newHolding = {};
@@ -175,6 +174,14 @@ export default {
                     Vue.prototype.operation = "null";
                     Vue.prototype.holding = {};
                     this.$emit("update:select-building", ["无"]);
+                    break;
+                case "删除建筑":
+                    Vue.prototype.operation = "deleting-building";
+                    Vue.prototype.holding = {};
+                    this.$emit("update:select-building", ["删除建筑"]);
+                    break;
+                default:
+                    console.log(index, indexPath);
                     break;
             }
         },
@@ -204,12 +211,12 @@ export default {
             this.$emit("update:select-building", indexPath);
         },
         getBuildingInfo(civil, catagory, name) {
-            return this.civilBuildingMap[civil][catagory].filter(function (v) {
+            return this.civilBuildingMap[civil][catagory].filter(function(v) {
                 return v.name === name;
             })[0];
-        },
+        }
     },
-    mounted() {},
+    mounted() {}
 };
 </script>
 

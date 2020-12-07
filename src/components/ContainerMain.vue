@@ -1,5 +1,5 @@
 <template>
-    <el-container @keydown="onKeyDown">
+    <el-container>
         <el-header :height="heightHeader">
             <container-top-nav
                 ref="top"
@@ -46,20 +46,16 @@ export default {
     components: {
         ContainerTopNav,
         ContainerAsideNav,
-        ContainerChessboard,
+        ContainerChessboard
     },
     data() {
         return {
             heightHeader: "40px",
-            widthAside: "64px",
+            widthAside: "64px"
         };
     },
     watch: {},
     methods: {
-        onKeyDown() {
-            console.log(1);
-            // this.$refs.aside.onSelectOperation("取消操作", ["取消操作"]);
-        },
         onChangeTopNavHeight(event) {
             this.heightHeader = event;
             let num = +event.substring(0, event.length - 2);
@@ -68,11 +64,17 @@ export default {
             ].heightHeader = num;
         },
         onChangeWoodNum(woodNum) {
+            Vue.prototype.operation = "null";
+            Vue.prototype.holding = {};
+            this.onSelectBuilding(["无"]);
             this.$refs.chessboard.$refs["building-container"].onChangeWoodNum(
                 woodNum
             );
         },
         onChangeCivil(civil) {
+            Vue.prototype.operation = "null";
+            Vue.prototype.holding = {};
+            this.onSelectBuilding(["无"]);
             this.$refs.aside.onChangeCivil(civil);
             this.$refs.chessboard.$refs["building-container"].onChangeCivil(
                 civil
@@ -85,7 +87,7 @@ export default {
             if (isNoWood) {
                 containerBuilding.tree = [];
             } else {
-                BuildingFixed.tree[this.woodNum - 3].map(function (v) {
+                BuildingFixed.tree[this.woodNum - 3].map(function(v) {
                     let unit = v.split("-");
                     containerBuilding.createBuilding("tree", true, {
                         line: +unit[0],
@@ -100,7 +102,7 @@ export default {
                         color: "var(--color-black)",
                         background: BuildingFixed.color_tree,
                         borderWidth: 1,
-                        borderColor: "var(--color-border-base)",
+                        borderColor: "var(--color-border-base)"
                     });
                 });
             }
@@ -114,7 +116,7 @@ export default {
             this.$refs.chessboard.$refs[
                 "building-container"
             ].isPreviewing = false;
-        },
+        }
     },
     mounted() {
         this.$refs.top.woodNum = 5;
@@ -129,7 +131,19 @@ export default {
         this.$refs.top.onClickMiniMap();
         this.$refs.top.isRotated = false;
         this.$refs.top.onClickRotateMap();
-    },
+        let that = this;
+        document.onkeydown = function(e) {
+            switch (e.code) {
+                case "Space":
+                    e.preventDefault();
+                    that.$refs.aside.onSelect("取消操作", ["取消操作"]);
+                    break;
+                default:
+                    // console.log(e);
+                    break;
+            }
+        };
+    }
 };
 </script>
 

@@ -14,7 +14,7 @@ module.exports = {
     },
     chainWebpack: (config) => {
         config.plugin("html").tap((args) => {
-            args[0].title = "地图编辑器V2";
+            args[0].title = "模拟帝国地图编辑器V2";
             return args;
         });
     },

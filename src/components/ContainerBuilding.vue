@@ -38,7 +38,7 @@
                 @update:leave-range="onMouseLeaveRange"
             />
         </div>
-        <building v-bind="previewBuilding" v-show="isPreviewing" />
+        <building v-bind="previewBuildingInfo" v-show="isPreviewing" />
         <container-building-range ref="range" v-bind="buildingRange" />
     </div>
 </template>
@@ -49,15 +49,17 @@ import Building from "./Building.vue";
 import ContainerBuildingRange from "./ContainerBuildingRange.vue";
 import { BuildingFixed } from "./../constants/building-fixed.js";
 import { UtilChessboard } from "./../util/chessboard.js";
+import { LabelText } from "./../constants/label-text.js";
 
 export default {
     name: "ContainerBuilding",
     components: {
         ContainerBuildingRange,
-        Building,
+        Building
     },
     data() {
         return {
+            protectionBuilding: LabelText.protection_building,
             isMouseDown: false,
             heightHeader: 40,
             water: [],
@@ -68,7 +70,7 @@ export default {
             cell: [],
             isPreviewing: false,
             lastHoldingSession: "",
-            previewBuilding: {
+            previewBuildingInfo: {
                 line: 0,
                 column: 0,
                 height: 0,
@@ -79,7 +81,7 @@ export default {
                 background: "#ffffff",
                 borderWidth: 1,
                 borderColor: "#000000",
-                isPreview: true,
+                isPreview: true
             },
             buildingRange: {
                 show: false,
@@ -87,39 +89,156 @@ export default {
                 originCo: 0,
                 width: 0,
                 height: 0,
-                range: 0,
-            },
+                range: 0
+            }
         };
     },
     methods: {
+        getLi(pageY) {
+            return Math.ceil((pageY - this.heightHeader - 32) / 30);
+        },
+        getCo(pageX) {
+            return Math.ceil((pageX - 32 - 64) / 30);
+        },
+        initCell() {
+            this.cell = [];
+            for (let i = 0; i <= this.$length; i++) {
+                let row = [];
+                for (let j = 0; j <= this.$length; j++) {
+                    row.push({
+                        inRange: UtilChessboard.isInRange(this.$length, i, j)
+                    });
+                }
+                this.cell.push(row);
+            }
+            window.cell = this.cell;
+        },
         getID(line, column, width, height) {
             if (width === height) return `${line}-${column}-${width}`;
             else return `${line}-${column}-${width}-${height}`;
         },
         createBuilding(catagory, checkBorder, config) {
-            config.id = this.getID(
-                config.line,
-                config.column,
-                config.width,
-                config.height
-            );
+            let { line, column, width, height } = config;
+            config.id = this.getID(line, column, width, height);
+            config.marker = 0;
             if (checkBorder) {
             }
             this[catagory].push(config);
-            for (let li = config.line; li < config.line + config.height; li++) {
-                for (
-                    let co = config.column;
-                    co < config.column + config.width;
-                    co++
-                ) {
+            let protectionRecord = [];
+            for (let li = line; li < line + height; li++) {
+                for (let co = column; co < column + width; co++) {
                     this.cell[li][co].occupied = config.id;
+                    this.cell[li][co].isRoad = config.isRoad;
+                    if (
+                        config.isRoad ||
+                        config.isBarrier ||
+                        config.isProtection
+                    )
+                        continue;
+                    for (let v of this.protectionBuilding[this.civil]) {
+                        if (
+                            v in this.cell[li][co] &&
+                            protectionRecord.indexOf(v) === -1
+                        ) {
+                            protectionRecord.push(v);
+                        }
+                    }
                 }
+            }
+            config.marker = protectionRecord.length;
+            if (config.isProtection) {
+                let range = config.range;
+                let buildingRecord = [];
+                for (let li = line - range; li < line + height + range; li++) {
+                    for (
+                        let co = column - range;
+                        co < column + width + range;
+                        co++
+                    ) {
+                        if (
+                            UtilChessboard.isInBuildingRange(
+                                li,
+                                co,
+                                line,
+                                column,
+                                width,
+                                height,
+                                range
+                            )
+                        ) {
+                            let c = this.cell[li][co];
+                            let text = config.text;
+                            let id = config.id;
+                            if (c[text]) {
+                                c[text].push(id);
+                            } else {
+                                c[text] = [id];
+                            }
+                            if (!c.occupied) continue;
+                            let b = this.building.find(function(v) {
+                                return v.id === c.occupied;
+                            });
+                            if (!b || b.isProtection) continue;
+                            if (buildingRecord.indexOf(b) === -1) {
+                                buildingRecord.push(b);
+                            }
+                        }
+                    }
+                }
+                this.updateBuildingMarker(buildingRecord);
+            }
+        },
+        updateBuildingMarker(buildings) {
+            for (let v of buildings) {
+                let protectionRecord = [];
+                for (let li = v.line; li < v.line + v.height; li++) {
+                    for (let co = v.column; co < v.column + v.width; co++) {
+                        for (let w of this.protectionBuilding[this.civil]) {
+                            if (
+                                w in this.cell[li][co] &&
+                                protectionRecord.indexOf(w) === -1
+                            ) {
+                                protectionRecord.push(w);
+                            }
+                        }
+                    }
+                }
+                v.marker = protectionRecord.length;
+            }
+        },
+        deleteBuilding(li, co) {
+            let id = this.cell[li][co].occupied;
+            if (this.operation !== "deleting-building" || !id) return;
+            let b;
+            let index;
+            let type;
+            if (this.cell[li][co].isRoad) type = "road";
+            else type = "building";
+            index = this[type].findIndex(function(v) {
+                return v.id === id;
+            });
+            b = this[type][index];
+            if (!b || b.isFixed) return;
+            for (let i = b.line; i < b.line + b.height; i++) {
+                for (let j = b.column; j < b.column + b.width; j++) {
+                    delete this.cell[i][j].occupied;
+                }
+            }
+            this[type].splice(index, 1);
+        },
+        placeBuilding() {
+            if (this.operation === "placing-building" && this.isPreviewing) {
+                let config = Object.assign({}, this.previewBuildingInfo);
+                config.isPreview = false;
+                this.isPreviewing = false;
+                if (config.isRoad) this.createBuilding("road", false, config);
+                else this.createBuilding("building", false, config);
             }
         },
         drawFixedBuilding(woodNum, type) {
             woodNum -= 3;
             let that = this;
-            BuildingFixed[type][woodNum].map(function (v) {
+            BuildingFixed[type][woodNum].map(function(v) {
                 let unit = v.split("-");
                 if (unit.length < 3) unit.push(1);
                 if (unit.length < 4) unit.push(unit[2]);
@@ -147,7 +266,7 @@ export default {
                     color: "var(--color-black)",
                     background: BuildingFixed[`color_${type}`],
                     borderWidth: 1,
-                    borderColor: "var(--color-border-base)",
+                    borderColor: "var(--color-border-base)"
                 });
             });
         },
@@ -159,10 +278,11 @@ export default {
             this.buildingRange.height = event.h;
             this.buildingRange.range = event.r;
         },
-        onMouseLeaveRange(event) {
+        onMouseLeaveRange() {
             this.buildingRange.show = false;
         },
         onChangeWoodNum(woodNum) {
+            this.initCell();
             this.water = [];
             this.mountain = [];
             this.tree = [];
@@ -177,15 +297,25 @@ export default {
             this.drawFixedBuilding(woodNum, "clay");
             this.drawFixedBuilding(woodNum, "wharf");
             if (!this.isNoWood) this.drawFixedBuilding(woodNum, "tree");
+            window.building = this.building;
         },
-        onChangeCivil(civil) {
-            this.building = this.building.filter(function (v) {
-                return v.isFixed;
-            });
+        onChangeCivil() {
+            Vue.prototype.operation = "deleting-building";
+            for (let i = this.building.length - 1; i >= 0; i--) {
+                this.deleteBuilding(
+                    this.building[i].line,
+                    this.building[i].column
+                );
+            }
+            for (let i = this.road.length - 1; i >= 0; i--) {
+                this.deleteBuilding(this.road[i].line, this.road[i].column);
+            }
+            Vue.prototype.operation = "null";
+            window.building = this.building;
         },
         onMouseMove(event) {
-            let li = Math.ceil((event.pageY - this.heightHeader - 32) / 30);
-            let co = Math.ceil((event.pageX - 32 - 64) / 30);
+            let li = this.getLi(event.pageY);
+            let co = this.getCo(event.pageX);
             if (
                 (event.path[0].className === "building-container" ||
                     event.path[0].className.indexOf("preview") !== -1 ||
@@ -193,21 +323,23 @@ export default {
                 this.operation === "placing-building"
             ) {
                 let offsetLi = Math.floor(
-                    (this.previewBuilding.height - 1) / 2
+                    (this.previewBuildingInfo.height - 1) / 2
                 );
-                let offsetCo = Math.floor((this.previewBuilding.width - 1) / 2);
+                let offsetCo = Math.floor(
+                    (this.previewBuildingInfo.width - 1) / 2
+                );
                 if (this.lastHoldingSession != this.holdingSession) {
                     let holding = this.holding;
                     offsetLi = Math.floor((holding.height - 1) / 2);
                     offsetCo = Math.floor((holding.width - 1) / 2);
                     holding.line = li - offsetLi;
                     holding.column = co - offsetCo;
-                    this.previewBuilding = holding;
+                    this.previewBuildingInfo = holding;
                 }
                 this.isPreviewing = true;
-                this.previewBuilding.line = li - offsetLi;
-                this.previewBuilding.column = co - offsetCo;
-                const pb = this.previewBuilding;
+                this.previewBuildingInfo.line = li - offsetLi;
+                this.previewBuildingInfo.column = co - offsetCo;
+                const pb = this.previewBuildingInfo;
                 const cell = this.cell;
                 for (let i = pb.line; i < pb.line + pb.height; i++) {
                     for (let j = pb.column; j < pb.column + pb.width; j++) {
@@ -223,31 +355,19 @@ export default {
             } else {
                 this.isPreviewing = false;
             }
-            if (this.isMouseDown) {
-                this.onMouseClick();
-            }
+            if (!this.isMouseDown) return;
+            this.onMouseClick(event);
+            this.deleteBuilding(li, co);
         },
-        onMouseClick() {
-            if (this.operation === "placing-building" && this.isPreviewing) {
-                let config = Object.assign({}, this.previewBuilding);
-                config.isPreview = false;
-                if (config.isRoad) this.createBuilding("road", false, config);
-                else this.createBuilding("building", false, config);
-            }
-        },
-    },
-    created() {
-        for (let i = 0; i <= this.$length; i++) {
-            let row = [];
-            for (let j = 0; j <= this.$length; j++) {
-                row.push({
-                    inRange: UtilChessboard.isInRange(this.$length, i, j),
-                });
-            }
-            this.cell.push(row);
+        onMouseClick(event) {
+            let li = this.getLi(event.pageY);
+            let co = this.getCo(event.pageX);
+            this.placeBuilding();
+            this.deleteBuilding(li, co);
         }
     },
-    mounted() {},
+    created() {},
+    mounted() {}
 };
 </script>
 

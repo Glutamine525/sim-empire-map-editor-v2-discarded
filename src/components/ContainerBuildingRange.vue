@@ -60,14 +60,21 @@ export default {
         hideCell(li, co) {
             li -= this.range + 1;
             co -= this.range + 1;
-            return !UtilChessboard.isInBuildingRange(
-                li,
-                co,
-                0,
-                0,
-                this.width,
-                this.height,
-                this.range
+            return (
+                !UtilChessboard.isInBuildingRange(
+                    li,
+                    co,
+                    0,
+                    0,
+                    this.width,
+                    this.height,
+                    this.range
+                ) ||
+                !UtilChessboard.isInRange(
+                    this.$length,
+                    this.originLi + li,
+                    this.originCo + co
+                )
             );
         },
     },

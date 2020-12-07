@@ -22,23 +22,17 @@
         @mouseleave="onMouseLeave"
     >
         <div class="text">{{ text }}</div>
-        <span class="marker" v-if="showMarker()">{{ marker }}</span>
+        <span class="marker" v-show="showMarker()">{{ marker }}</span>
     </div>
 </template>
 
 <script>
-import Vue from "vue";
-import { LabelText } from "./../constants/label-text.js";
-
 export default {
     name: "Building",
     data() {
         return {
             // marker: 1,
-            showEffect: true,
-            protection: {
-                // 值: [1],
-            },
+            showEffect: true
         };
     },
     props: {
@@ -49,9 +43,9 @@ export default {
         range: {
             type: Number,
             required: true,
-            validator: function (v) {
+            validator: function(v) {
                 return !v || v > 3;
-            },
+            }
         },
         text: { type: String, required: true },
         color: { type: String, required: true },
@@ -71,6 +65,8 @@ export default {
         borderLeft: { type: Boolean, required: false, default: true },
         special: { type: String, required: false },
         isPreview: { type: Boolean, required: false, default: false },
+        marker: { type: Number, required: false, default: 0 }
+        // protection: { type: Object, required: false }
     },
     computed: {
         getTop() {
@@ -95,25 +91,16 @@ export default {
             style += this.borderBottom ? "solid " : "none ";
             style += this.borderLeft ? "solid " : "none ";
             return style;
-        },
-        // isProtection() {
-        //     if (
-        //         LabelText.protection_building[this.civil].indexOf(this.text) >
-        //         -1
-        //     ) {
-        //         return true;
+        }
+        // marker() {
+        //     let num = 0;
+        //     if (!this.isRoad) {
+        //         for (let v in this.protection) {
+        //             num += v.length ? 1 : 0;
+        //         }
         //     }
-        //     return false;
-        // },
-        marker() {
-            let num = 0;
-            if (!this.isRoad) {
-                for (let v in this.protection) {
-                    num += v.length ? 1 : 0;
-                }
-            }
-            return num;
-        },
+        //     return num;
+        // }
     },
     methods: {
         setShowEffect(v) {
@@ -141,7 +128,7 @@ export default {
                     co: this.column,
                     w: this.width,
                     h: this.height,
-                    r: this.range,
+                    r: this.range
                 });
             }
         },
@@ -152,11 +139,11 @@ export default {
                     co: this.column,
                     w: this.width,
                     h: this.height,
-                    r: this.range,
+                    r: this.range
                 });
             }
-        },
-    },
+        }
+    }
 };
 </script>
 

@@ -41,7 +41,7 @@
             </label>
             <div class="splitter"></div>
             <label class="left"
-                >选中放置建筑:
+                >选中操作:
                 <strong class="highlight">{{ holding }}</strong>
             </label>
         </el-col>
@@ -82,14 +82,14 @@ export default {
                 { label: "波斯", value: "Persian" },
                 { label: "埃及", value: "Egypt" },
                 { label: "希腊", value: "Greece" },
-                { label: "阿兹特克", value: "Aztaka" },
-            ],
+                { label: "阿兹特克", value: "Aztaka" }
+            ]
         };
     },
     computed: {
         selected() {
             return "无";
-        },
+        }
     },
     methods: {
         onChangeWoodNum() {
@@ -106,11 +106,11 @@ export default {
         },
         onClickDarkMode() {
             if (this.isDarkMode) {
-                Object.keys(DarkMode).map(function (v) {
+                Object.keys(DarkMode).map(function(v) {
                     document.body.style.setProperty(`--${v}`, DarkMode[v]);
                 });
             } else {
-                Object.keys(LightMode).map(function (v) {
+                Object.keys(LightMode).map(function(v) {
                     document.body.style.setProperty(`--${v}`, LightMode[v]);
                 });
             }
@@ -129,10 +129,10 @@ export default {
             // } else {
             //     console.log(this.isRotated);
             // }
-        },
+        }
     },
     mounted() {
-        const resizeObserver = new ResizeObserver((entries) => {
+        const resizeObserver = new ResizeObserver(entries => {
             let height = 0;
             for (let entry of entries) {
                 height = entry.contentRect.height;
@@ -142,7 +142,7 @@ export default {
             this.$emit("update:top-height", `${height}px`);
         });
         resizeObserver.observe(document.querySelector(".resize-element"));
-    },
+    }
 };
 </script>
 
