@@ -130,7 +130,9 @@ export default {
             return this.isProtection && this.showEffect && !this.isPreview;
         },
         isHoverable() {
-            return (!this.isFixed || this.text) && !this.isPreview;
+            return (
+                (!this.isFixed || this.text) && !this.isPreview && !this.isRoad
+            );
         },
         onMouseMove() {
             if (this.range) {

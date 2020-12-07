@@ -7,6 +7,10 @@
             :active-text-color="activeTextColor"
             @select="onSelect"
         >
+            <el-menu-item index="道路">
+                <img :src="'./img/道路.png'" />
+                <span slot="title">道路</span>
+            </el-menu-item>
             <el-submenu
                 v-for="item1 in buildingCatagory"
                 :key="item1"
@@ -33,7 +37,6 @@
                 v-for="item1 in operationCatagory2"
                 :key="item1"
                 :index="item1"
-                popper-class="popper"
             >
                 <img :src="'./img/' + item1 + '.png'" />
                 <span slot="title">{{ item1 }}</span>
@@ -67,6 +70,7 @@
 <script>
 import Vue from "vue";
 import { LabelText } from "./../constants/label-text.js";
+import { BuildingFixed } from "./../constants/building-fixed.js";
 import { BuildingChina } from "./../constants/building-china.js";
 import { BuildingPersian } from "./../constants/building-persian.js";
 import { BuildingEgypt } from "./../constants/building-egypt.js";
@@ -149,6 +153,24 @@ export default {
         onSelectOperation(index, indexPath) {
             console.log(index, indexPath);
             switch (index) {
+                case "道路":
+                    let newHolding = {};
+                    newHolding.text = "";
+                    newHolding.width = 1;
+                    newHolding.height = 1;
+                    newHolding.range = 0;
+                    newHolding.color = "var(--color-black)";
+                    newHolding.background = BuildingFixed.color_road;
+                    newHolding.borderColor = "var(--color-border-base)";
+                    newHolding.borderWidth = 1;
+                    newHolding.isProtection = false;
+                    newHolding.isRoad = true;
+                    newHolding.isPreview = true;
+                    Vue.prototype.operation = "placing-building";
+                    Vue.prototype.holding = newHolding;
+                    Vue.prototype.holdingSession = new Date().getTime();
+                    this.$emit("update:select-building", ["道路"]);
+                    break;
                 case "取消操作":
                     Vue.prototype.operation = "null";
                     Vue.prototype.holding = {};
@@ -202,6 +224,12 @@ export default {
 .el-tooltip,
 .el-submenu__title {
     padding: 0 14px !important;
+}
+
+.el-menu-item,
+.el-submenu__title {
+    height: 51px !important;
+    line-height: 51px !important;
 }
 
 .el-menu-item img,

@@ -1,9 +1,9 @@
 <template>
     <div
-        @click="onMouseClick"
-        @mousemove="onMouseMove"
-        @mousedown="isMouseDown = true"
-        @mouseup="isMouseDown = false"
+        @click.left="onMouseClick"
+        @mousemove.left="onMouseMove"
+        @mousedown.left="isMouseDown = true"
+        @mouseup.left="isMouseDown = false"
     >
         <div class="barrier">
             <building
@@ -231,7 +231,8 @@ export default {
             if (this.operation === "placing-building" && this.isPreviewing) {
                 let config = Object.assign({}, this.previewBuilding);
                 config.isPreview = false;
-                this.createBuilding("building", false, config);
+                if (config.isRoad) this.createBuilding("road", false, config);
+                else this.createBuilding("building", false, config);
             }
         },
     },

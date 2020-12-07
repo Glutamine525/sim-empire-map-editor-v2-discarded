@@ -1,5 +1,5 @@
 <template>
-    <el-container>
+    <el-container @keydown="onKeyDown">
         <el-header :height="heightHeader">
             <container-top-nav
                 ref="top"
@@ -56,6 +56,10 @@ export default {
     },
     watch: {},
     methods: {
+        onKeyDown() {
+            console.log(1);
+            // this.$refs.aside.onSelectOperation("取消操作", ["取消操作"]);
+        },
         onChangeTopNavHeight(event) {
             this.heightHeader = event;
             let num = +event.substring(0, event.length - 2);
