@@ -37,7 +37,7 @@ export default {
         originCo: { type: Number, required: true },
         width: { type: Number, required: true },
         height: { type: Number, required: true },
-        range: { type: Number, required: true },
+        range: { type: Number, required: true }
     },
     computed: {
         diff() {
@@ -54,7 +54,7 @@ export default {
         },
         getHeight() {
             return `${(this.height + this.range * 2) * 30}px`;
-        },
+        }
     },
     methods: {
         hideCell(li, co) {
@@ -76,8 +76,8 @@ export default {
                     this.originCo + co
                 )
             );
-        },
-    },
+        }
+    }
 };
 </script>
 

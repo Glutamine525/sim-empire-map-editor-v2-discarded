@@ -85,25 +85,37 @@ export default {
                 "building-container"
             ];
             if (isNoWood) {
-                containerBuilding.tree = [];
+                for (let i = containerBuilding.tree.length - 1; i >= 0; i--) {
+                    containerBuilding.deleteBuilding(
+                        containerBuilding.tree[i].line,
+                        containerBuilding.tree[i].column,
+                        true,
+                        "tree"
+                    );
+                }
             } else {
                 BuildingFixed.tree[this.woodNum - 3].map(function(v) {
                     let unit = v.split("-");
-                    containerBuilding.createBuilding("tree", true, {
-                        line: +unit[0],
-                        column: +unit[1],
-                        width: 1,
-                        height: 1,
-                        range: 0,
-                        isFixed: true,
-                        isBarrier: true,
-                        barrierType: "tree",
-                        text: "",
-                        color: "var(--color-black)",
-                        background: BuildingFixed.color_tree,
-                        borderWidth: 1,
-                        borderColor: "var(--color-border-base)"
-                    });
+                    containerBuilding.createBuilding(
+                        "tree",
+                        true,
+                        {
+                            line: +unit[0],
+                            column: +unit[1],
+                            width: 1,
+                            height: 1,
+                            range: 0,
+                            isFixed: true,
+                            isBarrier: true,
+                            barrierType: "tree",
+                            text: "",
+                            color: "var(--color-black)",
+                            background: BuildingFixed.color_tree,
+                            borderWidth: 1,
+                            borderColor: "var(--color-border-base)"
+                        },
+                        true
+                    );
                 });
             }
         },
@@ -123,14 +135,14 @@ export default {
         this.$refs.top.onChangeWoodNum();
         this.$refs.top.civil = "China";
         this.$refs.top.onChangeCivil();
-        this.$refs.top.isNoWood = false;
-        this.$refs.top.onClickNoWood();
+        // this.$refs.top.isNoWood = true;
+        // this.$refs.top.onClickNoWood();
         this.$refs.top.isDarkMode = false;
         this.$refs.top.onClickDarkMode();
-        this.$refs.top.showMiniMap = true;
-        this.$refs.top.onClickMiniMap();
-        this.$refs.top.isRotated = false;
-        this.$refs.top.onClickRotateMap();
+        // this.$refs.top.showMiniMap = true;
+        // this.$refs.top.onClickMiniMap();
+        // this.$refs.top.isRotated = false;
+        // this.$refs.top.onClickRotateMap();
         let that = this;
         document.onkeydown = function(e) {
             switch (e.code) {

@@ -117,7 +117,7 @@ export default {
             if (width === height) return `${line}-${column}-${width}`;
             else return `${line}-${column}-${width}-${height}`;
         },
-        createBuilding(catagory, checkBorder, config) {
+        createBuilding(catagory, checkBorder, config, force) {
             let { line, column, width, height } = config;
             config.id = this.getID(line, column, width, height);
             config.marker = 0;
@@ -125,6 +125,36 @@ export default {
             }
             this[catagory].push(config);
             let protectionRecord = [];
+            if (force) {
+                for (let li = line; li < line + height; li++) {
+                    for (let co = column; co < column + width; co++) {
+                        let id = this.cell[li][co].occupied;
+                        if (id) {
+                            let b = this.building.find(function(v) {
+                                return v.id === id;
+                            });
+                            if (!b) {
+                                b = this.road.find(function(v) {
+                                    return v.id === id;
+                                });
+                                this.deleteBuilding(
+                                    b.line,
+                                    b.column,
+                                    true,
+                                    "road"
+                                );
+                            } else {
+                                this.deleteBuilding(
+                                    b.line,
+                                    b.column,
+                                    true,
+                                    "building"
+                                );
+                            }
+                        }
+                    }
+                }
+            }
             for (let li = line; li < line + height; li++) {
                 for (let co = column; co < column + width; co++) {
                     this.cell[li][co].occupied = config.id;
@@ -138,7 +168,8 @@ export default {
                     for (let v of this.protectionBuilding[this.civil]) {
                         if (
                             v in this.cell[li][co] &&
-                            protectionRecord.indexOf(v) === -1
+                            protectionRecord.indexOf(v) === -1 &&
+                            this.cell[li][co][v].length > 0
                         ) {
                             protectionRecord.push(v);
                         }
@@ -196,7 +227,8 @@ export default {
                         for (let w of this.protectionBuilding[this.civil]) {
                             if (
                                 w in this.cell[li][co] &&
-                                protectionRecord.indexOf(w) === -1
+                                protectionRecord.indexOf(w) === -1 &&
+                                this.cell[li][co][w].length > 0
                             ) {
                                 protectionRecord.push(w);
                             }
@@ -206,23 +238,70 @@ export default {
                 v.marker = protectionRecord.length;
             }
         },
-        deleteBuilding(li, co) {
+        deleteBuilding(li, co, force, arg) {
             let id = this.cell[li][co].occupied;
-            if (this.operation !== "deleting-building" || !id) return;
+            if (!force)
+                if (this.operation !== "deleting-building" || !id) return;
             let b;
             let index;
             let type;
-            if (this.cell[li][co].isRoad) type = "road";
+            if (force) type = arg;
+            else if (this.cell[li][co].isRoad) type = "road";
             else type = "building";
             index = this[type].findIndex(function(v) {
                 return v.id === id;
             });
             b = this[type][index];
-            if (!b || b.isFixed) return;
+            if (!force && (!b || b.isFixed)) return;
             for (let i = b.line; i < b.line + b.height; i++) {
                 for (let j = b.column; j < b.column + b.width; j++) {
                     delete this.cell[i][j].occupied;
                 }
+            }
+            if (b.isProtection) {
+                this.buildingRange.show = false;
+                let buildingRecord = [];
+                for (
+                    let i = b.line - b.range;
+                    i < b.line + b.height + b.range;
+                    i++
+                ) {
+                    for (
+                        let j = b.column - b.range;
+                        j < b.column + b.width + b.range;
+                        j++
+                    ) {
+                        if (
+                            UtilChessboard.isInBuildingRange(
+                                i,
+                                j,
+                                b.line,
+                                b.column,
+                                b.width,
+                                b.height,
+                                b.range
+                            )
+                        ) {
+                            let c = this.cell[i][j];
+                            let index = c[b.text].indexOf(b.id);
+                            c[b.text].splice(index, 1);
+                            if (!c.occupied) continue;
+                            let bb = this.building.find(function(v) {
+                                return v.id === c.occupied;
+                            });
+                            if (!bb || bb.isProtection) continue;
+                            if (buildingRecord.indexOf(bb) === -1) {
+                                buildingRecord.push(bb);
+                            }
+                        }
+                        // if (this.cell[i][j][b.text]) {
+                        //     let index = this.cell[i][j][b.text].indexOf(b.id);
+                        //     if (index > -1)
+                        //         this.cell[i][j][b.text].splice(index, 1);
+                        // }
+                    }
+                }
+                this.updateBuildingMarker(buildingRecord);
             }
             this[type].splice(index, 1);
         },
