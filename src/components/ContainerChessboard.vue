@@ -1,8 +1,8 @@
 <template>
     <div class="chessboard-container">
         <canvas
-            :width="length * 30"
-            :height="length * 30"
+            :width="$length * 30"
+            :height="$length * 30"
             id="cell-canvas"
         ></canvas>
         <container-biulding
@@ -15,6 +15,7 @@
 <script>
 import Vue from "vue";
 import ContainerBiulding from "./ContainerBuilding.vue";
+import { UtilChessboard } from "./../util/chessboard.js";
 import { LightMode } from "./../constants/light-mode.js";
 import { DarkMode } from "./../constants/dark-mode.js";
 
@@ -25,7 +26,6 @@ export default {
     },
     data() {
         return {
-            length: 116,
             halfLength: 58,
             chessboard: [],
             lastPreviewSession: "",
@@ -33,60 +33,48 @@ export default {
     },
     computed: {},
     methods: {
-        isCorner(li, co) {
-            if (li + co < this.halfLength + 2) return true;
-            if (li + co > this.halfLength * 3) return true;
-            if (li < co - this.halfLength) return true;
-            if (li > co + this.halfLength) return true;
-            return false;
-        },
-        isBoundary(li, co) {
-            let result = false;
-            if (li + co === this.halfLength + 2) result = "top-left";
-            if (li + co === this.halfLength * 3) result = "bottom-right";
-            if (li === co - this.halfLength) result = "top-right";
-            if (li === co + this.halfLength) result = "bottom-left";
-            if (li === 1 && co === this.halfLength + 1) result = "angle-top";
-            if (li === this.halfLength && co === this.halfLength * 2)
-                result = "angle-right";
-            if (li === this.halfLength * 2 && co === this.halfLength)
-                result = "angle-bottom";
-            if (li === this.halfLength + 1 && co === 1) result = "angle-left";
-            return result;
-        },
-        isInRange(li, co) {
-            if (li + co <= this.halfLength + 2) return false;
-            if (li + co >= this.halfLength * 3) return false;
-            if (li <= co - this.halfLength) return false;
-            if (li >= co + this.halfLength) return false;
-            return true;
-        },
         onClickDarkMode(isDarkMode) {
             if (isDarkMode) {
-                this.drawCell(
-                    DarkMode["color-border-darker"],
-                    DarkMode["color-black"]
-                );
+                this.drawCell(DarkMode["color-border-darker"]);
             } else {
-                this.drawCell(
-                    LightMode["color-border-darker"],
-                    LightMode["color-black"]
-                );
+                this.drawCell(LightMode["color-border-darker"]);
             }
         },
-        drawCell(borderColor, boundaryColor) {
+        drawCell(borderColor) {
+            let length = this.$length;
             let canvas = document.getElementById("cell-canvas");
             let ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, 116 * 30, 116 * 30);
+            let offset = 0.5;
             ctx.lineWidth = 1;
             ctx.strokeStyle = borderColor;
-            ctx.fillStyle = boundaryColor;
-            for (let li = 1; li <= this.length; li++) {
-                for (let co = 1; co <= this.length; co++) {
-                    if (this.isInRange(li, co)) {
-                        ctx.strokeRect((co - 1) * 30, (li - 1) * 30, 30, 30);
+            for (let li = 1; li <= length; li++) {
+                for (let co = 1; co <= length; co++) {
+                    if (UtilChessboard.isInRange(length, li, co)) {
+                        ctx.clearRect(
+                            co * 30 - 30 + offset,
+                            li * 30 - 30 + offset,
+                            29,
+                            29
+                        );
+                        ctx.strokeRect(
+                            co * 30 - 30 + offset,
+                            li * 30 - 30 + offset,
+                            29,
+                            29
+                        );
                     }
-                    let boundary = this.isBoundary(li, co);
+                }
+            }
+        },
+        drawBoundary(boundaryColor) {
+            let length = this.$length;
+            let canvas = document.getElementById("cell-canvas");
+            let ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, length * 30, length * 30);
+            ctx.fillStyle = boundaryColor;
+            for (let li = 1; li <= length; li++) {
+                for (let co = 1; co <= length; co++) {
+                    let boundary = UtilChessboard.isBoundary(length, li, co);
                     switch (boundary) {
                         case "top-left":
                             ctx.moveTo((co - 1) * 30 - 10, li * 30);
@@ -148,6 +136,9 @@ export default {
                 }
             }
         },
+    },
+    mounted() {
+        this.drawBoundary("black");
     },
 };
 </script>

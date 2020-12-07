@@ -101,6 +101,7 @@ export default {
             this.$emit("update:civil", this.civil);
         },
         onClickNoWood() {
+            Vue.prototype.isNoWood = this.isNoWood;
             this.$emit("update:no-wood", this.isNoWood);
         },
         onClickDarkMode() {

@@ -93,7 +93,7 @@ export default {
         onSelectBuilding(index, indexPath) {
             let newHolding = {};
             let selectedBuilding = this.getBuildingInfo(
-                Vue.prototype.civil,
+                this.civil,
                 indexPath[0],
                 index
             );

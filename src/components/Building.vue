@@ -97,9 +97,8 @@ export default {
         },
         isProtection() {
             if (
-                LabelText.protection_building[Vue.prototype.civil].indexOf(
-                    this.text
-                ) > -1
+                LabelText.protection_building[this.civil].indexOf(this.text) >
+                -1
             ) {
                 return true;
             }

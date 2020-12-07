@@ -68,16 +68,6 @@ export default {
                 this.range
             );
         },
-        isInRange(li, co, originLi, originCo, width, height, range) {
-            let diff = range - 4;
-            li -= originLi;
-            co -= originCo;
-            if (li + co + range + diff < 0) return false;
-            if (li + co > range + diff + width + height - 2) return false;
-            if (li < co - (range + diff + width - 1)) return false;
-            if (li > co + (range + diff + height - 1)) return false;
-            return true;
-        },
     },
 };
 </script>

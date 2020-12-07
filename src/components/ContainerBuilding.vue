@@ -1,5 +1,5 @@
 <template>
-    <div @mousedown="clickTest" @mousemove="onMouseMove">
+    <div @mousedown="onMouseClick" @mousemove="onMouseMove">
         <div class="barrier">
             <building
                 v-for="(item, index) in water"
@@ -29,25 +29,21 @@
                 v-for="(item, index) in building"
                 :key="'building-' + index"
                 v-bind="item"
-                :ref="item.id"
                 @update:enter-range="onMouseEnterRange"
                 @update:leave-range="onMouseLeaveRange"
             />
         </div>
-        <building
-            v-bind="previewBuilding"
-            ref="previewd-building"
-            v-if="isPreviewing"
-        />
+        <building v-bind="previewBuilding" v-if="isPreviewing" />
         <container-building-range ref="range" v-bind="buildingRange" />
     </div>
 </template>
 
 <script>
 import Vue from "vue";
-import { BuildingFixed } from "./../constants/building-fixed.js";
 import Building from "./Building.vue";
 import ContainerBuildingRange from "./ContainerBuildingRange.vue";
+import { BuildingFixed } from "./../constants/building-fixed.js";
+import { UtilChessboard } from "./../util/chessboard.js";
 
 export default {
     name: "ContainerBuilding",
@@ -66,6 +62,7 @@ export default {
             lastLi: 0,
             lastCo: 0,
             isPreviewing: false,
+            lastHoldingSession: "",
             previewBuilding: {
                 line: 0,
                 height: 0,
@@ -93,9 +90,6 @@ export default {
         getID(line, column, width, height) {
             if (width === height) return `${line}-${column}-${width}`;
             else return `${line}-${column}-${width}-${height}`;
-        },
-        getBuilding(id) {
-            return this.$refs[id][0];
         },
         createBuilding(catagory, checkBorder, config) {
             config.id = this.getID(
@@ -173,13 +167,13 @@ export default {
             this.building = [];
             this.drawFixedBuilding(woodNum, "water");
             this.drawFixedBuilding(woodNum, "mountain");
-            this.drawFixedBuilding(woodNum, "tree");
             this.drawFixedBuilding(woodNum, "road");
             this.drawFixedBuilding(woodNum, "stone");
             this.drawFixedBuilding(woodNum, "copper");
             this.drawFixedBuilding(woodNum, "wood");
             this.drawFixedBuilding(woodNum, "clay");
             this.drawFixedBuilding(woodNum, "wharf");
+            if (!this.isNoWood) this.drawFixedBuilding(woodNum, "tree");
         },
         onChangeCivil(civil) {
             this.building = this.building.filter(function (v) {
@@ -196,46 +190,65 @@ export default {
                 (event.path[0].className === "building-container" ||
                     event.path[0].className.indexOf("preview") !== -1 ||
                     event.path[1].className.indexOf("preview") !== -1) &&
-                Vue.prototype.operation === "placing-building"
+                this.operation === "placing-building"
             ) {
-                let holding = Vue.prototype.holding;
-                let offsetLi = Math.floor((holding.height - 1) / 2);
-                let offsetCo = Math.floor((holding.width - 1) / 2);
-                holding.line = li - offsetLi;
-                holding.column = co - offsetCo;
-                this.previewBuilding = holding;
+                let offsetLi = Math.floor(
+                    (this.previewBuilding.height - 1) / 2
+                );
+                let offsetCo = Math.floor((this.previewBuilding.width - 1) / 2);
+                if (this.lastHoldingSession != this.holdingSession) {
+                    let holding = this.holding;
+                    offsetLi = Math.floor((holding.height - 1) / 2);
+                    offsetCo = Math.floor((holding.width - 1) / 2);
+                    holding.line = li - offsetLi;
+                    holding.column = co - offsetCo;
+                    this.previewBuilding = holding;
+                }
                 this.isPreviewing = true;
+                this.previewBuilding.line = li - offsetLi;
+                this.previewBuilding.column = co - offsetCo;
+                const pb = this.previewBuilding;
+                for (let i = pb.line; i < pb.line + pb.height; i++) {
+                    for (let j = pb.column; j < pb.column + pb.width; j++) {
+                        if (!UtilChessboard.isInRange(this.$length, i, j)) {
+                            this.isPreviewing = false;
+                        }
+                    }
+                }
             } else {
                 this.isPreviewing = false;
             }
         },
-        clickTest(event) {
-            if (event.path.length === 10)
-                this.createBuilding("building", true, {
-                    line: 57,
-                    column: 57,
-                    width: 3,
-                    height: 3,
-                    range: 4,
-                    text: "永和",
-                    color: "black",
-                    background: "red",
-                    borderWidth: 1,
-                    borderColor: "var(--color-border-base)",
-                });
-            else
-                this.createBuilding("building", true, {
-                    line: 56,
-                    column: 59,
-                    width: 3,
-                    height: 6,
-                    range: 7,
-                    text: "test",
-                    color: "black",
-                    background: "red",
-                    borderWidth: 1,
-                    borderColor: "var(--color-border-base)",
-                });
+        onMouseClick(event) {
+            if (this.operation === "placing-building" && this.isPreviewing) {
+                console.log("place!");
+            }
+            // if (event.path.length === 10)
+            //     this.createBuilding("building", true, {
+            //         line: 57,
+            //         column: 57,
+            //         width: 3,
+            //         height: 3,
+            //         range: 4,
+            //         text: "永和",
+            //         color: "black",
+            //         background: "red",
+            //         borderWidth: 1,
+            //         borderColor: "var(--color-border-base)",
+            //     });
+            // else
+            //     this.createBuilding("building", true, {
+            //         line: 56,
+            //         column: 59,
+            //         width: 3,
+            //         height: 6,
+            //         range: 7,
+            //         text: "test",
+            //         color: "black",
+            //         background: "red",
+            //         borderWidth: 1,
+            //         borderColor: "var(--color-border-base)",
+            //     });
         },
     },
     mounted() {},

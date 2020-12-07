@@ -81,7 +81,7 @@ export default {
             if (isNoWood) {
                 containerBuilding.tree = [];
             } else {
-                BuildingFixed.tree[Vue.prototype.woodNum - 3].map(function (v) {
+                BuildingFixed.tree[this.woodNum - 3].map(function (v) {
                     let unit = v.split("-");
                     containerBuilding.createBuilding("tree", true, {
                         line: +unit[0],
@@ -161,5 +161,6 @@ export default {
     padding: 32px;
     position: absolute;
     z-index: -1;
+    transition: color, background 0.3s;
 }
 </style>
