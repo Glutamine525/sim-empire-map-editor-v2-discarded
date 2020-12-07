@@ -107,6 +107,9 @@ export default {
         },
         onSelectBuilding(indexPath) {
             this.$refs.top.holding = indexPath.join("-");
+            this.$refs.chessboard.$refs[
+                "building-container"
+            ].isPreviewing = false;
         },
     },
     mounted() {

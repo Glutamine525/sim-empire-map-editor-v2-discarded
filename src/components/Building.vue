@@ -62,6 +62,7 @@ export default {
         isMiracel: { type: Boolean, required: false, default: false },
         isFixed: { type: Boolean, required: false, default: false },
         isBarrier: { type: Boolean, required: false, default: false },
+        isProtection: { type: Boolean, required: false, default: false },
         barrierType: { type: String, required: false, default: "" },
         isRoad: { type: Boolean, required: false, default: false },
         borderTop: { type: Boolean, required: false, default: true },
@@ -95,15 +96,15 @@ export default {
             style += this.borderLeft ? "solid " : "none ";
             return style;
         },
-        isProtection() {
-            if (
-                LabelText.protection_building[this.civil].indexOf(this.text) >
-                -1
-            ) {
-                return true;
-            }
-            return false;
-        },
+        // isProtection() {
+        //     if (
+        //         LabelText.protection_building[this.civil].indexOf(this.text) >
+        //         -1
+        //     ) {
+        //         return true;
+        //     }
+        //     return false;
+        // },
         marker() {
             let num = 0;
             if (!this.isRoad) {

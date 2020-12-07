@@ -5,12 +5,14 @@
             :background-color="backgroundColor"
             :text-color="textColor"
             :active-text-color="activeTextColor"
-            @select="onSelectBuilding"
+            @select="onSelect"
         >
             <el-submenu
                 v-for="item1 in buildingCatagory"
                 :key="item1"
                 :index="item1"
+                :show-timeout="100"
+                :hide-timeout="100"
                 popper-class="popper"
             >
                 <template slot="title">
@@ -24,6 +26,37 @@
                         :index="item2.name"
                     >
                         {{ item2.name }}
+                    </el-menu-item>
+                </el-menu-item-group>
+            </el-submenu>
+            <el-menu-item
+                v-for="item1 in operationCatagory2"
+                :key="item1"
+                :index="item1"
+                popper-class="popper"
+            >
+                <img :src="'./img/' + item1 + '.png'" />
+                <span slot="title">{{ item1 }}</span>
+            </el-menu-item>
+            <el-submenu
+                v-for="item1 in operationCatagory1"
+                :key="item1"
+                :index="item1"
+                :show-timeout="100"
+                :hide-timeout="100"
+                popper-class="popper"
+            >
+                <template slot="title">
+                    <img :src="'./img/' + item1 + '.png'" />
+                    <span slot="title">{{ item1 }}</span>
+                </template>
+                <el-menu-item-group :title="item1">
+                    <el-menu-item
+                        v-for="item2 in labelText[item1]"
+                        :key="item2"
+                        :index="item2"
+                    >
+                        {{ item2 }}
                     </el-menu-item>
                 </el-menu-item-group>
             </el-submenu>
@@ -46,7 +79,9 @@ export default {
     name: "container-aside-nav",
     data() {
         return {
+            labelText: LabelText,
             buildingCatagory: LabelText.building_catagory,
+            operationCatagory: LabelText.operation_catagory,
             backgroundColor: "",
             textColor: "",
             activeTextColor: "",
@@ -72,6 +107,20 @@ export default {
             },
         };
     },
+    computed: {
+        operationCatagory1() {
+            let that = this;
+            return this.operationCatagory.filter(function (v) {
+                return v in that.labelText;
+            });
+        },
+        operationCatagory2() {
+            let that = this;
+            return this.operationCatagory.filter(function (v) {
+                return !(v in that.labelText);
+            });
+        },
+    },
     methods: {
         onClickDarkMode(isDarkMode) {
             if (isDarkMode) {
@@ -90,6 +139,23 @@ export default {
                 that.buildingInfo[v] = that.civilBuildingMap[civil][v];
             });
         },
+        onSelect(index, indexPath) {
+            if (indexPath[0] in this.buildingInfo) {
+                this.onSelectBuilding(index, indexPath);
+            } else {
+                this.onSelectOperation(index, indexPath);
+            }
+        },
+        onSelectOperation(index, indexPath) {
+            console.log(index, indexPath);
+            switch (index) {
+                case "取消操作":
+                    Vue.prototype.operation = "null";
+                    Vue.prototype.holding = {};
+                    this.$emit("update:select-building", ["无"]);
+                    break;
+            }
+        },
         onSelectBuilding(index, indexPath) {
             let newHolding = {};
             let selectedBuilding = this.getBuildingInfo(
@@ -106,6 +172,10 @@ export default {
             newHolding.borderColor = selectedBuilding.border_color;
             newHolding.borderWidth = 1;
             newHolding.isPreview = true;
+            newHolding.isProtection =
+                LabelText.protection_building[this.civil].indexOf(
+                    selectedBuilding.text
+                ) > -1;
             Vue.prototype.operation = "placing-building";
             Vue.prototype.holding = newHolding;
             Vue.prototype.holdingSession = new Date().getTime();
@@ -129,10 +199,12 @@ export default {
     transition: color, background 0.3s;
 }
 
+.el-tooltip,
 .el-submenu__title {
     padding: 0 14px !important;
 }
 
+.el-menu-item img,
 .el-submenu__title img {
     width: 36px;
     height: 36px;

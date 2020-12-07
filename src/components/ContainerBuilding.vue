@@ -1,5 +1,10 @@
 <template>
-    <div @mousedown="onMouseClick" @mousemove="onMouseMove">
+    <div
+        @click="onMouseClick"
+        @mousemove="onMouseMove"
+        @mousedown="isMouseDown = true"
+        @mouseup="isMouseDown = false"
+    >
         <div class="barrier">
             <building
                 v-for="(item, index) in water"
@@ -33,7 +38,7 @@
                 @update:leave-range="onMouseLeaveRange"
             />
         </div>
-        <building v-bind="previewBuilding" v-if="isPreviewing" />
+        <building v-bind="previewBuilding" v-show="isPreviewing" />
         <container-building-range ref="range" v-bind="buildingRange" />
     </div>
 </template>
@@ -53,21 +58,21 @@ export default {
     },
     data() {
         return {
+            isMouseDown: false,
             heightHeader: 40,
             water: [],
             mountain: [],
             tree: [],
             road: [],
             building: [],
-            lastLi: 0,
-            lastCo: 0,
+            cell: [],
             isPreviewing: false,
             lastHoldingSession: "",
             previewBuilding: {
                 line: 0,
+                column: 0,
                 height: 0,
                 width: 0,
-                height: 0,
                 range: 0,
                 text: "",
                 color: "#000000",
@@ -101,6 +106,15 @@ export default {
             if (checkBorder) {
             }
             this[catagory].push(config);
+            for (let li = config.line; li < config.line + config.height; li++) {
+                for (
+                    let co = config.column;
+                    co < config.column + config.width;
+                    co++
+                ) {
+                    this.cell[li][co].occupied = config.id;
+                }
+            }
         },
         drawFixedBuilding(woodNum, type) {
             woodNum -= 3;
@@ -144,17 +158,6 @@ export default {
             this.buildingRange.width = event.w;
             this.buildingRange.height = event.h;
             this.buildingRange.range = event.r;
-            // console.log(
-            //     this.$refs.range.isInRange(
-            //         60,
-            //         53,
-            //         this.buildingRange.originLi,
-            //         this.buildingRange.originCo,
-            //         this.buildingRange.width,
-            //         this.buildingRange.height,
-            //         this.buildingRange.range
-            //     )
-            // );
         },
         onMouseLeaveRange(event) {
             this.buildingRange.show = false;
@@ -183,9 +186,6 @@ export default {
         onMouseMove(event) {
             let li = Math.ceil((event.pageY - this.heightHeader - 32) / 30);
             let co = Math.ceil((event.pageX - 32 - 64) / 30);
-            if (li === this.lastLi && co === this.lastCo) return;
-            this.lastLi = li;
-            this.lastCo = co;
             if (
                 (event.path[0].className === "building-container" ||
                     event.path[0].className.indexOf("preview") !== -1 ||
@@ -208,48 +208,43 @@ export default {
                 this.previewBuilding.line = li - offsetLi;
                 this.previewBuilding.column = co - offsetCo;
                 const pb = this.previewBuilding;
+                const cell = this.cell;
                 for (let i = pb.line; i < pb.line + pb.height; i++) {
                     for (let j = pb.column; j < pb.column + pb.width; j++) {
                         if (!UtilChessboard.isInRange(this.$length, i, j)) {
                             this.isPreviewing = false;
+                            return;
+                        } else if (cell[i][j].occupied) {
+                            this.isPreviewing = false;
+                            return;
                         }
                     }
                 }
             } else {
                 this.isPreviewing = false;
             }
-        },
-        onMouseClick(event) {
-            if (this.operation === "placing-building" && this.isPreviewing) {
-                console.log("place!");
+            if (this.isMouseDown) {
+                this.onMouseClick();
             }
-            // if (event.path.length === 10)
-            //     this.createBuilding("building", true, {
-            //         line: 57,
-            //         column: 57,
-            //         width: 3,
-            //         height: 3,
-            //         range: 4,
-            //         text: "永和",
-            //         color: "black",
-            //         background: "red",
-            //         borderWidth: 1,
-            //         borderColor: "var(--color-border-base)",
-            //     });
-            // else
-            //     this.createBuilding("building", true, {
-            //         line: 56,
-            //         column: 59,
-            //         width: 3,
-            //         height: 6,
-            //         range: 7,
-            //         text: "test",
-            //         color: "black",
-            //         background: "red",
-            //         borderWidth: 1,
-            //         borderColor: "var(--color-border-base)",
-            //     });
         },
+        onMouseClick() {
+            if (this.operation === "placing-building" && this.isPreviewing) {
+                let config = Object.assign({}, this.previewBuilding);
+                config.isPreview = false;
+                this.createBuilding("building", false, config);
+            }
+        },
+    },
+    created() {
+        for (let i = 0; i <= this.$length; i++) {
+            let row = [];
+            for (let j = 0; j <= this.$length; j++) {
+                row.push({
+                    inRange: UtilChessboard.isInRange(this.$length, i, j),
+                });
+            }
+            this.cell.push(row);
+        }
     },
     mounted() {},
 };

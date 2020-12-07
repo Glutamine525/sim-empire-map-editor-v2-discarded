@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { UtilChessboard } from "./../util/chessboard.js";
+
 export default {
     name: "container-building-range",
     props: {
@@ -58,7 +60,7 @@ export default {
         hideCell(li, co) {
             li -= this.range + 1;
             co -= this.range + 1;
-            return !this.isInRange(
+            return !UtilChessboard.isInBuildingRange(
                 li,
                 co,
                 0,
